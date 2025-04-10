@@ -1,0 +1,18 @@
+{
+  "sharedState": {
+    "initialMessage": "hello world"
+  },
+  "steps": [
+    {
+      "tasks": [
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": "hello world"
+          }
+        }
+      ]
+    }
+  ]
+}
+

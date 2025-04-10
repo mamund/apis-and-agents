@@ -7,7 +7,12 @@
           "tag": "uppercase",
           "input": {
             "input": {"$fromState" : "message"}
-          }
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/results/full"
+            }
+          ]
         }
       ]
     }

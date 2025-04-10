@@ -84,14 +84,6 @@ app.get('/forms', (req, res) => {
       output: '{ status: string, state: object }'
     },
     {
-      rel: 'patch-state',
-      method: 'PATCH',
-      href: `${baseUrl}/state/:id`,
-      input: '{ op: "add", path: string, value: any }',
-      output: '{ status: "patched", state: object }'
-    },
-
-    {
       rel: 'delete-state',
       method: 'DELETE',
       href: `${baseUrl}/state/:id`,

@@ -10,11 +10,35 @@ const discoveryURL = 'http://localhost:4000/find';
 
 app.use(express.json());
 
+// Utility: resolve input from shared state
+const resolveInput = async (input, stateURL) => {
+  if (!stateURL) return input;
+  const resolved = {};
+  let state = {};
+
+  try {
+    const response = await axios.get(stateURL);
+    state = response.data;
+  } catch (err) {
+    console.warn('Failed to load shared state:', err.message);
+  }
+
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === 'object' && value.$fromState) {
+      resolved[key] = state[value.$fromState];
+    } else {
+      resolved[key] = value;
+    }
+  }
+
+  return resolved;
+};
+
 // POST /run-job
 app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
-  const jobState = job.sharedState || {};
+  const stateURL = job.sharedStateURL;
   const revertStack = [];
 
   console.log(`Starting job ${jobId}`);
@@ -25,8 +49,7 @@ app.post('/run-job', async (req, res) => {
         const response = await axios.get(discoveryURL, {
           params: { tag: task.tag }
         });
-        console.log(task.tag);
-        
+
         if (!response.data.length) throw new Error(`No service found for tag ${task.tag}`);
 
         const service = response.data[0];
@@ -34,17 +57,63 @@ app.post('/run-job', async (req, res) => {
         const executeForm = form.data.find(f => f.rel === 'execute');
 
         const requestId = uuidv4();
+        const resolvedInput = await resolveInput(task.input, stateURL);
+
         const payload = {
-          ...task.input,
+          ...resolvedInput,
           requestId
         };
 
-        // Track revert info
         revertStack.push({ serviceURL: service.serviceURL, requestId });
 
-        console.log(revertStack);
-        
         const result = await axios.post(executeForm.href, payload);
+        const contentType = result.headers['content-type'] || '';
+        let resultData = result.data;
+
+        // Handle non-JSON response by wrapping in _raw format
+        if (!contentType.includes('application/json')) {
+          if (task.storeResultAt) {
+            resultData = {
+              _raw: typeof result.data === 'string' ? result.data : JSON.stringify(result.data),
+              _contentType: contentType
+            };
+          } else {
+            throw new Error('Non-JSON response and no storeResultAt defined');
+          }
+        }
+
+        // Result-to-state wiring
+        if (task.storeResultAt && stateURL) {
+          const storeInstructions = Array.isArray(task.storeResultAt)
+            ? task.storeResultAt
+            : (typeof task.storeResultAt === 'string'
+                ? [{ targetPath: task.storeResultAt }]
+                : [task.storeResultAt]);
+
+          for (const instruction of storeInstructions) {
+            const allowed = !instruction.onlyOnStatus || instruction.onlyOnStatus.includes(result.status);
+            if (!allowed) continue;
+
+            const source = instruction.sourcePath
+              ? instruction.sourcePath.split('/').filter(Boolean).reduce((o, k) => o && o[k], resultData)
+              : resultData;
+
+            if (instruction.sourcePath && source === undefined) {
+              throw new Error('sourcePath ' + instruction.sourcePath + ' not found in result');
+            }
+
+            try {
+              await axios.patch(stateURL, {
+                op: 'add',
+                path: instruction.targetPath,
+                value: source
+              });
+            } catch (err) {
+              console.warn('Failed to write to shared state:', err.message);
+            }
+          }
+        }
+
         return { status: 'ok', task: task.tag, result: result.data };
       } catch (error) {
         return { status: 'error', task: task.tag, error: error.message };
@@ -56,7 +125,6 @@ app.post('/run-job', async (req, res) => {
     if (failed) {
       console.log(`Job ${jobId} failed at task: ${failed.task}`);
 
-      // Roll back previous steps
       for (const revert of revertStack.reverse()) {
         try {
           await axios.post(`${revert.serviceURL}/revert`, { requestId: revert.requestId });
@@ -82,7 +150,7 @@ app.get('/forms', (req, res) => {
       rel: 'run-job',
       method: 'POST',
       href: `${baseUrl}/run-job`,
-      input: '{ sharedState?, steps: [ { tasks: [ { tag, input } ] } ] }',
+      input: '{ sharedStateURL?, steps: [ { tasks: [ { tag, input } ] } ] }',
       output: '{ jobId, status | error }'
     }
   ]);

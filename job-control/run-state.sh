@@ -13,5 +13,7 @@ curl -X POST http://localhost:4500/state \
 # run the job that reads the state
 curl -X POST -d "@job-read-state.json" -H "content-type: application/json" http://localhost:4700/run-job | jq .
 
+curl http://localhost:4500/state/628bd965-fc5e-43cf-8e8d-bea39154d0fd | jq .
+
 # clean out any remaining state
 # curl -X DELETE http://localhost:4500/state/628bd965-fc5e-43cf-8e8d-bea39154d0fd  -i 
