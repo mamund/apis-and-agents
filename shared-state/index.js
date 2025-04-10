@@ -37,11 +37,25 @@ app.post('/state/:id', (req, res) => {
   res.status(200).json({ status: 'updated', state: stateStore[id] });
 });
 
-// POST /state — create a new shared state doc
+// POST /state — create a new shared state doc (optionally with client-supplied id)
 app.post('/state', (req, res) => {
-  const id = uuidv4();
-  stateStore[id] = req.body || {};
-  res.status(201).json({ stateURL: `http://localhost:${port}/state/${id}` });
+  const { id, ...initialState } = req.body || {};
+  const stateId = id || uuidv4();
+
+  if (stateStore[stateId]) {
+    return res.status(409).json({ error: `State ID '${stateId}' already exists.` });
+  }
+
+  stateStore[stateId] = initialState;
+
+  res.status(201).json({ stateURL: `http://localhost:${port}/state/${stateId}` });
+});
+
+// DELETE /state/:id — delete a shared state doc (no error if missing)
+app.delete('/state/:id', (req, res) => {
+  const { id } = req.params;
+  delete stateStore[id];
+  res.status(204).send();
 });
 
 // GET /forms — describe available endpoints
@@ -52,7 +66,7 @@ app.get('/forms', (req, res) => {
       rel: 'create-state',
       method: 'POST',
       href: `${baseUrl}/state`,
-      input: '{ key: value, ... } (optional)',
+      input: '{ id?: string, key: value, ... } (optional)',
       output: '{ stateURL: string }'
     },
     {
@@ -68,11 +82,19 @@ app.get('/forms', (req, res) => {
       href: `${baseUrl}/state/:id`,
       input: '{ key: value, ... }',
       output: '{ status: string, state: object }'
+    },
+    {
+      rel: 'delete-state',
+      method: 'DELETE',
+      href: `${baseUrl}/state/:id`,
+      input: 'path param: id',
+      output: '204 No Content'
     }
   ]);
 });
 
 // Register with DISCO on startup
+/*
 const registerService = async () => {
   const serviceInfo = {
     serviceName: 'shared-state',
@@ -89,9 +111,10 @@ const registerService = async () => {
     console.error('Shared state service registration failed:', error.message);
   }
 };
+*/
 
 app.listen(port, () => {
   console.log(`Shared State Service running on port ${port}`);
-  registerService();
+  //registerService();
 });
 
