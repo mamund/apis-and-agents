@@ -1,0 +1,34 @@
+{
+  "sharedState": {
+    "initialMessage": "hello world"
+  },
+  "steps": [
+    {
+      "tasks": [
+        {
+          "tag": "timestamp",
+          "input": {}
+        },
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": "hello world"
+          }
+        }
+      ]
+    },
+    {
+      "tasks": [
+        {
+          "tag": "state",
+          "input": {
+            "stateURL": "http://localhost:4500/state/abc123",
+            "newKey": "completed",
+            "newValue": true
+          }
+        }
+      ]
+    }
+  ]
+}
+
