@@ -1,4 +1,7 @@
 ### Designing Workflow-Compliant Services
+
+_Excerpted from "RESTful Web API Patterns and Practices Cookbook, Amundsen (2022)
+
 A shared goal of many service interface designers is the ability to easily connect multiple services to form a workflow. These are often called _composable_ services. This recipe describes a set of basic design features every workflow-compliant (composable) service should have.
 
 #### Problem
