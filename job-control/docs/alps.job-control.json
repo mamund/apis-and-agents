@@ -1,0 +1,32 @@
+{
+  "alps": {
+    "version": "1.0",
+    "doc": {
+      "format": "markdown",
+      "value": "Job Control Service Affordances"
+    },
+    "descriptor": [
+      {
+        "id": "runJob",
+        "type": "safe",
+        "name": "run-job",
+        "rt": "#JobResult",
+        "descriptor": [
+          {
+            "name": "sharedStateURL",
+            "type": "semantic"
+          },
+          {
+            "name": "steps",
+            "type": "semantic"
+          }
+        ]
+      },
+      {
+        "id": "jobResult",
+        "type": "semantic",
+        "name": "JobResult"
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+openapi: 3.1.0
+info:
+  title: Shared State Service
+  version: 1.0.0
+paths:
+  /state:
+    post:
+      summary: Create a new shared state
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '201':
+          description: Created
+  /state/{id}:
+    get:
+      summary: Get state by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retrieved state
+    post:
+      summary: Merge update into state
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Updated
+    patch:
+      summary: Patch state with op/path/value
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                op:
+                  type: string
+                path:
+                  type: string
+                value:
+                  type: any
+      responses:
+        '200':
+          description: Patched
+    delete:
+      summary: Delete state by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /forms:
+    get:
+      summary: Get supported forms
+      responses:
+        '200':
+          description: Form list

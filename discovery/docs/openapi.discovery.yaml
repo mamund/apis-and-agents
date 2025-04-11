@@ -1,0 +1,115 @@
+openapi: 3.1.0
+info:
+  title: Discovery Service
+  version: 1.0.0
+paths:
+  /register:
+    post:
+      summary: Register a new service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceName:
+                  type: string
+                serviceURL:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                semanticProfile:
+                  type: string
+                mediaTypes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Service registered
+  /renew:
+    post:
+      summary: Renew a service registration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                registryID:
+                  type: string
+      responses:
+        '200':
+          description: Renewed
+  /unregister:
+    post:
+      summary: Unregister a service
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                registryID:
+                  type: string
+      responses:
+        '204':
+          description: Unregistered
+  /find:
+    get:
+      summary: Find services by tag or profile
+      parameters:
+        - name: tag
+          in: query
+          schema:
+            type: string
+        - name: profile
+          in: query
+          schema:
+            type: string
+        - name: mediaType
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matching services
+  /bind:
+    post:
+      summary: Bind two services together
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sourceRegistryID:
+                  type: string
+                targetRegistryID:
+                  type: string
+      responses:
+        '201':
+          description: Binding created
+  /unbind:
+    post:
+      summary: Remove a service binding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bindingID:
+                  type: string
+      responses:
+        '204':
+          description: Binding removed
+  /endpoints:
+    get:
+      summary: List service endpoints
+      responses:
+        '200':
+          description: Endpoint list

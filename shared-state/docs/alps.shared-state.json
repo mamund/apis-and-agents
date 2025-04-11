@@ -1,0 +1,36 @@
+{
+  "alps": {
+    "version": "1.0",
+    "doc": {
+      "format": "markdown",
+      "value": "Shared State Affordances"
+    },
+    "descriptor": [
+      {
+        "id": "createState",
+        "type": "unsafe",
+        "name": "create-state"
+      },
+      {
+        "id": "readState",
+        "type": "safe",
+        "name": "read-state"
+      },
+      {
+        "id": "updateState",
+        "type": "unsafe",
+        "name": "update-state"
+      },
+      {
+        "id": "patchState",
+        "type": "unsafe",
+        "name": "patch-state"
+      },
+      {
+        "id": "deleteState",
+        "type": "idempotent",
+        "name": "delete-state"
+      }
+    ]
+  }
+}

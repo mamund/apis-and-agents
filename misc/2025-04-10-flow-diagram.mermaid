@@ -1,0 +1,20 @@
+graph TD
+  client[Client]
+  jobcontrol[job_control]
+  discovery[discovery]
+  sharedstate[shared_state]
+
+  servicea[service_a]
+  serviceb[service_b]
+
+  client --> jobcontrol
+  jobcontrol --> discovery
+  jobcontrol --> servicea
+  jobcontrol --> serviceb
+  jobcontrol --> sharedstate
+
+  servicea --> jobcontrol
+  serviceb --> jobcontrol
+
+  sharedstate --> jobcontrol
+

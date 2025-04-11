@@ -1,0 +1,41 @@
+{
+  "alps": {
+    "version": "1.0",
+    "doc": {
+      "format": "markdown",
+      "value": "Service Discovery Affordances"
+    },
+    "descriptor": [
+      {
+        "id": "register",
+        "type": "unsafe",
+        "name": "register"
+      },
+      {
+        "id": "renew",
+        "type": "unsafe",
+        "name": "renew"
+      },
+      {
+        "id": "unregister",
+        "type": "unsafe",
+        "name": "unregister"
+      },
+      {
+        "id": "find",
+        "type": "safe",
+        "name": "find"
+      },
+      {
+        "id": "bind",
+        "type": "unsafe",
+        "name": "bind"
+      },
+      {
+        "id": "unbind",
+        "type": "unsafe",
+        "name": "unbind"
+      }
+    ]
+  }
+}
