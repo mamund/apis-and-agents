@@ -1,0 +1,78 @@
+openapi: 3.1.0
+info:
+  title: Uppercase Service (service-a)
+  version: 1.0.0
+paths:
+  /execute:
+    post:
+      summary: Convert input string to uppercase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input:
+                  type: string
+              required:
+                - input
+      responses:
+        '200':
+          description: Uppercased result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+  /repeat:
+    post:
+      summary: Repeat conversion of input string to uppercase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                input:
+                  type: string
+              required:
+                - input
+      responses:
+        '200':
+          description: Repeated uppercased result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+  /revert:
+    post:
+      summary: Revert a prior operation (noop)
+      responses:
+        '200':
+          description: No operation performed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+  /forms:
+    get:
+      summary: List supported forms
+      responses:
+        '200':
+          description: Array of hypermedia forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object

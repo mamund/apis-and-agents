@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant Client
+  participant ServiceA as service-a
+
+  alt /execute
+    Client->>ServiceA: POST /execute { input: "hello" }
+    ServiceA-->>Client: 200 OK { result: "HELLO" }
+  end
+
+  alt /repeat
+    Client->>ServiceA: POST /repeat { input: "hello" }
+    ServiceA-->>Client: 200 OK { result: "HELLO" }
+  end
+
+  alt /revert
+    Client->>ServiceA: POST /revert
+    ServiceA-->>Client: 200 OK { status: "noop" }
+  end
+

@@ -1,0 +1,67 @@
+{
+  "alps": {
+    "version": "1.0",
+    "doc": {
+      "format": "markdown",
+      "value": "Affordances for the Uppercase Service (service-a)"
+    },
+    "descriptor": [
+      {
+        "id": "execute",
+        "type": "unsafe",
+        "name": "execute",
+        "descriptor": [
+          {
+            "name": "input",
+            "type": "semantic",
+            "doc": {
+              "value": "Input string to convert to uppercase"
+            }
+          },
+          {
+            "name": "result",
+            "type": "semantic",
+            "doc": {
+              "value": "Resulting uppercase string"
+            }
+          }
+        ]
+      },
+      {
+        "id": "repeat",
+        "type": "unsafe",
+        "name": "repeat",
+        "descriptor": [
+          {
+            "name": "input",
+            "type": "semantic",
+            "doc": {
+              "value": "Same input as 'execute'"
+            }
+          },
+          {
+            "name": "result",
+            "type": "semantic",
+            "doc": {
+              "value": "Same result as 'execute'"
+            }
+          }
+        ]
+      },
+      {
+        "id": "revert",
+        "type": "idempotent",
+        "name": "revert",
+        "descriptor": [
+          {
+            "name": "status",
+            "type": "semantic",
+            "doc": {
+              "value": "Always returns 'noop'"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
