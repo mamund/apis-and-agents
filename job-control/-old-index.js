@@ -54,10 +54,7 @@ app.post('/run-job', async (req, res) => {
 
         const service = response.data[0];
         const form = await axios.get(`${service.serviceURL}/forms`);
-
-        const mode = step.mode || 'execute';
-        const targetForm = form.data.find(f => f.rel === mode);
-        if (!targetForm) throw new Error(`No form found for mode '${mode}'`);
+        const executeForm = form.data.find(f => f.rel === 'execute');
 
         const requestId = uuidv4();
         const resolvedInput = await resolveInput(task.input, stateURL);
@@ -69,7 +66,7 @@ app.post('/run-job', async (req, res) => {
 
         revertStack.push({ serviceURL: service.serviceURL, requestId });
 
-        const result = await axios.post(targetForm.href, payload);
+        const result = await axios.post(executeForm.href, payload);
         const contentType = result.headers['content-type'] || '';
         let resultData = result.data;
 
@@ -162,3 +159,4 @@ app.get('/forms', (req, res) => {
 app.listen(port, () => {
   console.log(`Job Control service running on port ${port}`);
 });
+

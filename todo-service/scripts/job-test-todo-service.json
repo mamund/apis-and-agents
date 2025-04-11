@@ -85,11 +85,12 @@
     },
     {
       "name": "todo-revert",
+      "mode": "revert",
       "tasks": [
         {
           "service": "todo-service",
           "input": {
-            "command": "revert",
+            "command": "create",
             "resource": "todo",
             "id": "job-test-001"
           },
@@ -99,8 +100,7 @@
             }
           ]
         }
-      ],
-      "mode": "revert"
+      ]
     }
   ]
 }
