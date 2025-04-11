@@ -1,8 +1,4 @@
-Great! Here’s a structured **whitepaper outline** that captures the vision and communicates the system's full value across microservices and agentic platforms.
-
----
-
-# 📄 Whitepaper Outline  
+# Whitepaper Outline  
 **Title:**  
 **"From Static APIs to Dynamic Ecosystems: A Unified Architecture for Services, Jobs, and Agents"**
 
@@ -92,7 +88,3 @@ Great! Here’s a structured **whitepaper outline** that captures the vision and
 - DISCO OpenAPI and ALPS links
 - Example job definition scripts
 - Glossary of terms (affordance, bind token, etc.)
-
----
-
-Would you like me to begin drafting specific sections next — maybe start with the **Executive Summary** and **Architectural Overview**? Or would you like a **visual system diagram** to complement this outline?

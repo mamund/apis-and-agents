@@ -14,7 +14,7 @@ Each command runs independently, but shared output streams connect them.
 
 ---
 
-## In Our System
+## In This System
 
 Every job step in the `job-control` system can read from and write to a **shared state document**, hosted and managed by the `shared-state` service.
 
@@ -49,7 +49,7 @@ Each service:
 It doesn't need to:
 - Know where the data came from
 - Know where the result goes
-- Be aware of the job at all
+- Be aware of the job system at all
 
 All coordination happens **externally**, via `job-control` and `shared-state`.
 

@@ -1,3 +1,5 @@
+# WOrking Design Document for "Result-to-State Wiring" Feature
+
 This is an excellent next-level challenge — and it’s totally the kind of affordance that makes a job-control system powerful and reusable.
 
 You're essentially talking about enabling **result-to-state wiring** — where the **output** of a service call is automatically **stored** (whole or in part) into the shared state doc, so that **future tasks can read from it** (e.g. via variable substitution). ✅
@@ -6,12 +8,12 @@ Let’s break this into a few pieces so we can think it through cleanly.
 
 ---
 
-### 🧠 **Key Idea**
+### **Key Idea**
 > After a task executes, its result can be piped into the shared state, optionally at a specified path, so that later steps can reuse the data.
 
 ---
 
-### 🧱 Building Blocks to Consider
+### Building Blocks to Consider
 
 #### 1. **Capture Output**  
 Each task's execution should capture the full JSON result of the HTTP request.
@@ -54,7 +56,7 @@ This logic is executed **after** the task completes successfully. Could be part 
 
 ---
 
-### 🌀 Example Flow
+### Example Flow
 
 #### Job Step:
 ```json
@@ -83,7 +85,7 @@ The email service doesn’t need to know where the data came from — just that 
 
 ---
 
-### 🔒 Considerations
+### Considerations
 
 - **Error Handling**: Should we write failed task output? Only on 2xx? Allow user to specify conditions?
 - **Overwrite Policy**: Allow overwriting state paths? Or enforce immutability?
@@ -91,7 +93,7 @@ The email service doesn’t need to know where the data came from — just that 
 
 ---
 
-### 🛠 Implementation Options
+### Implementation Options
 
 1. **No Change to Services** (preferred):
    - Orchestrator handles piping result into shared-state.

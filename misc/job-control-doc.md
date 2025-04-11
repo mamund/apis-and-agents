@@ -1,6 +1,6 @@
-# 🧭 Job Control: Declarative, Dynamic Job Orchestration
+# Job Control: Declarative, Dynamic Job Orchestration
 
-## 🧠 What Is It?
+## What Is It?
 The `job-control` service lets you define **multi-step jobs** composed of **parallel tasks** using a simple JSON structure. You don't need to write code — just declare the job and let the system handle:
 
 - Service discovery
@@ -11,7 +11,7 @@ The `job-control` service lets you define **multi-step jobs** composed of **para
 
 ---
 
-## 🚦 What Can a Job Do?
+## What Can a Job Do?
 
 Each **job** is a list of **steps**, and each step contains multiple **tasks** that run in parallel.
 
@@ -42,7 +42,7 @@ Each **job** is a list of **steps**, and each step contains multiple **tasks** t
 
 ---
 
-## 🧰 Available Features
+## Available Features
 
 | Feature                | Description |
 |------------------------|-------------|
@@ -57,7 +57,7 @@ Each **job** is a list of **steps**, and each step contains multiple **tasks** t
 
 ---
 
-## 🧪 Example with Result-to-State Wiring
+## Example with Result-to-State Wiring
 
 ```json
 {
@@ -77,26 +77,26 @@ This task:
 
 ---
 
-## 🛠 Bonus Capabilities in Progress
+## Bonus Capabilities in Progress
 
 - `onlyOnStatus` — selectively write to state
 - Future: retry policies, conditional logic, task transform hooks, loops and mappers
 
 ---
 
-## 📣 Why Is This Cool?
+## Why Is This Cool?
 
 Because you get:
-- ⚡ Declarative, clean job logic
-- 🧱 Modular microservice orchestration
-- 🧠 State-based affordance tracking
-- 🧘‍♀️ No glue code. No hard-wiring.
+- Declarative, clean job logic
+- Modular microservice orchestration
+- State-based affordance tracking
+- No glue code. No hard-wiring.
 
 You're orchestrating behavior — not just calling APIs.
 
 ---
 
-## 🧠 Is This Orchestration or Choreography?
+## NOTE: Is This Orchestration or Choreography?
 
 This is **orchestration**. The `job-control` service is the central conductor that:
 - Runs each step in order

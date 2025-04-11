@@ -8,7 +8,7 @@ With just three components:
 - `shared-state` — to store and share intermediate data
 - `job-control` — to declare, execute, and manage multi-step jobs
 
-…you’ve built a **complete platform for orchestrating workflows across uncoordinated services**.
+…you have a **complete platform for orchestrating workflows across uncoordinated services**.
 
 ---
 
@@ -53,7 +53,7 @@ Just like shell scripts let you chain commands on Unix…
 This platform lets you chain **web services**, even if:
 - You didn’t write them
 - You don’t own them
-- You don’t trust their internal logic
+- You don’t have access to their internal logic
 
 As long as they follow the interface contract, they’re **safe to mix**.
 
@@ -71,7 +71,7 @@ As long as they follow the interface contract, they’re **safe to mix**.
 
 ---
 
-## What You’ve Created
+## What This Is ...
 
 An **execution environment** for:
 
