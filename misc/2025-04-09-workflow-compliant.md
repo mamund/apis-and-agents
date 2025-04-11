@@ -44,10 +44,9 @@ Workflow-compliant services support both `correlation-id` for the job and `reque
 #### Example
 Consider a composable service that computes sales taxes for a shopping cart of goods. This service (along with other workflow-compliant services) can be used as a task in a job to handle checking out from a shopping site. The following is an imaginary DSL example of what that might look like:
 
-[source]
-----
+```
 *** Checkout Job
-***
+
 READ sharedState WITH urlState
 EXECUTE shoppingCartService->checkOutForm WITH sharedSTATE
 IF-NOT-OK EXIT
@@ -55,9 +54,9 @@ EXECUTE salesTaxService->applyTaxesForm WITH sharedSTATE
 IF-NOT-OK EXECUTE shoppingCartService->revertCheckoutForm WITH sharedSTATE
 STORE sharedState WITH urlState
 EXIT
-***
+
 *** End Job
-----
+```
 
 In this example, the `sharedState` is loaded into the client application. That application then attempts to execute the `shoppingCartService->checkOutForm` and the `salesTaxService->applyTaxesForm`, and then store the resulting `sharedState`. Note the support for the `shoppingCartService->revertCheckoutForm` in case something goes wrong when applying the sales taxes.
 
