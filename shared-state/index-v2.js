@@ -11,9 +11,6 @@ const registryURL = 'http://localhost:4000/register';
 
 app.use(express.json());
 
-// Health check endpoint
-app.get('/ping', (req, res) => res.status(200).json({ status: 'ok' }));
-
 // In-memory state store
 const stateStore = {};
 
@@ -109,6 +106,26 @@ app.get('/forms', (req, res) => {
   ]);
 });
 
+// Register with DISCO on startup
+const registerService = async () => {
+  const serviceInfo = {
+    serviceName: 'shared-state',
+    serviceURL: `http://localhost:${port}`,
+    tags: ['state', 'shared'],
+    semanticProfile: 'urn:example:shared-state',
+    mediaTypes: ['application/json']
+  };
+
+  try {
+    const response = await axios.post(registryURL, serviceInfo);
+    log('register', { registryID: response.data.registryID });
+  } catch (error) {
+    log('register-failed', { error: error.message }, 'error');
+  }
+};
+
+
+
 // PATCH /state/:id — apply { op, path, value } updates (supports "add")
 app.patch('/state/:id', (req, res) => {
   const { id } = req.params;
@@ -146,25 +163,6 @@ app.patch('/state/:id', (req, res) => {
 
 app.listen(port, () => {
   log('startup', { port });
-  registerService();
+  //registerService();
 });
 
-
-// Register with DISCO on startup
-const registerService = async () => {
-  const serviceInfo = {
-    serviceName: 'shared-state',
-    serviceURL: `http://localhost:${port}`,
-    tags: ['state', 'store'],
-    semanticProfile: 'urn:example:shared-state',
-    mediaTypes: ['application/json'],
-    pingUrl: `http://localhost:${port}/ping`
-  };
-
-  try {
-    const response = await axios.post('http://localhost:4000/register', serviceInfo);
-    log('register', { registryID: response.data.registryID });
-  } catch (err) {
-    log('register-failed', { error: err.message }, 'error');
-  }
-};
