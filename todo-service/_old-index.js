@@ -6,7 +6,6 @@ const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 4001;
-const BASE_URL = `http://localhost:${PORT}`;
 
 // In-memory store of todos
 const todos = {}; // { id: { id, title, done } }
@@ -47,7 +46,7 @@ function handleCommand(message, mode = 'execute') {
     }
 
     case 'delete': {
-      //if (!todos[id]) return { error: 'Not found', status: 404 };
+      if (!todos[id]) return { error: 'Not found', status: 404 };
       delete todos[id];
       return { result: { deleted: true }, status: 200 };
     }
@@ -111,31 +110,35 @@ app.post('/execute', createHandler('execute'));
 app.post('/repeat', createHandler('repeat'));
 app.post('/revert', createHandler('revert'));
 
-// Forms endpoint (standardized)
+// Forms endpoint
 app.get('/forms', (req, res) => {
-  res.json([
-    {
-      rel: 'execute',
-      method: 'POST',
-      href: `${BASE_URL}/execute`,
-      input: ['command', 'resource', 'id', 'payload', 'metadata'],
-      output: '{ result: object | error: object }'
+  res.json({
+    resource: 'todo',
+    messageStructure: {
+      command: 'string',
+      resource: 'string',
+      id: 'string (optional)',
+      payload: {
+        title: 'string',
+        done: 'boolean'
+      },
+      metadata: 'object (optional)'
     },
-    {
-      rel: 'repeat',
-      method: 'POST',
-      href: `${BASE_URL}/repeat`,
-      input: ['command', 'resource', 'id', 'payload', 'metadata'],
-      output: '{ result: object | error: object }'
-    },
-    {
-      rel: 'revert',
-      method: 'POST',
-      href: `${BASE_URL}/revert`,
-      input: ['command', 'resource', 'id'],
-      output: '{ status: "noop" | reverted: true }'
-    }
-  ]);
+    affordances: [
+      {
+        command: 'create',
+        requiredFields: ['title']
+      },
+      {
+        command: 'update',
+        requiredFields: ['id', 'title']
+      },
+      {
+        command: 'filter',
+        optionalFields: ['title', 'done']
+      }
+    ]
+  });
 });
 
 app.listen(PORT, () => {
@@ -146,20 +149,17 @@ app.listen(PORT, () => {
 // Self-registration with discovery
 async function registerWithDiscovery() {
   try {
-    const registryURL = 'http://localhost:4000/register';
-
-    const serviceInfo = {
-      serviceName: 'todo-service',
-      serviceURL: `http://localhost:${PORT}`,
-      tags: ['todo', 'create', 'read', 'update', 'delete', 'filter'],
-      semanticProfile: 'urn:example:todo',
-      mediaTypes: ['application/json']
+    const registration = {
+      name: "todo-service",
+      url: `http://localhost:${PORT}`,
+      endpoints: ["/execute", "/repeat", "/revert", "/forms"],
+      resources: ["todo"]
     };
 
-    const response = await axios.post(registryURL, serviceInfo);
-    console.log(`Registered as ${response.data.registryID}`);
+    await axios.post("http://localhost:4000/register", registration);
+    console.log("Registered with discovery service.");
   } catch (err) {
-    console.error('Service registration failed:', err.message);
+    console.error("Discovery registration failed:", err.message);
   }
 }
 

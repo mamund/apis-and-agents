@@ -1,0 +1,106 @@
+{
+  "sharedState": {
+    "initialMessage": "hello world"
+  },
+  "name": "test-todo-service",
+  "steps": [
+    {
+      "name": "delete-todo",
+      "tasks": [
+        {
+          "service": "todo-service",
+          "input": {
+            "command": "delete",
+            "resource": "todo",
+            "id": "job-test-001"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "$state.todoDelete"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "create-todo",
+      "tasks": [
+        {
+          "service": "todo-service",
+          "input": {
+            "command": "create",
+            "resource": "todo",
+            "id": "job-test-001",
+            "payload": {
+              "title": "From Job-Control",
+              "done": false
+            }
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "$state.todoCreated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "update-todo",
+      "tasks": [
+        {
+          "service": "todo-service",
+          "input": {
+            "command": "update",
+            "resource": "todo",
+            "id": "job-test-001",
+            "payload": {
+              "done": true
+            }
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "$state.todoUpdated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "read-todo",
+      "tasks": [
+        {
+          "service": "todo-service",
+          "input": {
+            "command": "read",
+            "resource": "todo",
+            "id": "job-test-001"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "$state.todoRead"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "todo-revert",
+      "tasks": [
+        {
+          "service": "todo-service",
+          "input": {
+            "command": "revert",
+            "resource": "todo",
+            "id": "job-test-001"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "$state.todoRevert"
+            }
+          ]
+        }
+      ],
+      "mode": "revert"
+    }
+  ]
+}
