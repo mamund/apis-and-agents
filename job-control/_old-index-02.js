@@ -5,7 +5,6 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const { log } = require('./logger');
 const port = process.env.PORT || 4700;
 const discoveryURL = 'http://localhost:4000/find';
 
@@ -21,7 +20,7 @@ const resolveInput = async (input, stateURL) => {
     const response = await axios.get(stateURL);
     state = response.data;
   } catch (err) {
-    log('shared-state-load-failed', { error: err.message }, 'warn');
+    console.warn('Failed to load shared state:', err.message);
   }
 
   for (const [key, value] of Object.entries(input)) {
@@ -42,7 +41,7 @@ app.post('/run-job', async (req, res) => {
   const stateURL = job.sharedStateURL;
   const revertStack = [];
 
-  log('job-start', { jobId });
+  console.log(`Starting job ${jobId}`);
 
   for (const step of job.steps) {
     const tasks = step.tasks.map(async (task) => {
@@ -113,7 +112,7 @@ app.post('/run-job', async (req, res) => {
                 value: source
               });
             } catch (err) {
-              log('shared-state-write-failed', { error: err.message }, 'warn');
+              console.warn('Failed to write to shared state:', err.message);
             }
           }
         }
@@ -127,14 +126,14 @@ app.post('/run-job', async (req, res) => {
     const results = await Promise.all(tasks);
     const failed = results.find(r => r.status === 'error');
     if (failed) {
-      log('job-failed', { jobId, task: failed.task, error: failed.error }, 'error');
+      console.log(`Job ${jobId} failed at task: ${failed.task}`);
 
       for (const revert of revertStack.reverse()) {
         try {
           await axios.post(`${revert.serviceURL}/revert`, { requestId: revert.requestId });
-          log('job-revert', { jobId, requestId: revert.requestId });
+          console.log(`Reverted requestId ${revert.requestId}`);
         } catch (err) {
-          log('job-revert-failed', { jobId, requestId: revert.requestId, error: err.message }, 'warn');
+          console.warn(`Failed to revert requestId ${revert.requestId}:`, err.message);
         }
       }
 
@@ -142,7 +141,7 @@ app.post('/run-job', async (req, res) => {
     }
   }
 
-  log('job-complete', { jobId });
+  console.log(`Job ${jobId} completed.`);
   res.status(200).json({ jobId, status: 'completed' });
 });
 
@@ -161,5 +160,5 @@ app.get('/forms', (req, res) => {
 });
 
 app.listen(port, () => {
-  log('startup', { port });
+  console.log(`Job Control service running on port ${port}`);
 });

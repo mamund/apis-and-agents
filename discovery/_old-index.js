@@ -1,8 +1,7 @@
-// discovery/index.js (with logging)
+// discovery/index.js
 
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { log } = require('./logger');  // <- Added logger import
 const app = express();
 const port = process.env.PORT || 4000;
 
@@ -16,7 +15,6 @@ const bindings = {};
 app.post('/register', (req, res) => {
   const { serviceName, serviceURL, tags = [], semanticProfile = '', mediaTypes = [] } = req.body;
   if (!serviceName || !serviceURL) {
-    log('register-failed', { reason: 'missing fields', input: req.body }, 'warn');
     return res.status(400).json({ error: 'serviceName and serviceURL are required' });
   }
 
@@ -31,7 +29,6 @@ app.post('/register', (req, res) => {
     lastRenewed: new Date().toISOString()
   };
 
-  log('register', { registryID, serviceName, serviceURL });
   res.status(201).location(`/services/${registryID}`).json({ registryID });
 });
 
@@ -39,11 +36,9 @@ app.post('/register', (req, res) => {
 app.post('/renew', (req, res) => {
   const { registryID } = req.body;
   if (!registryID || !registry[registryID]) {
-    log('renew-failed', { registryID }, 'warn');
     return res.status(404).json({ error: 'Service not found in registry' });
   }
   registry[registryID].lastRenewed = new Date().toISOString();
-  log('renew', { registryID });
   res.status(200).json({ status: 'renewed' });
 });
 
@@ -51,7 +46,6 @@ app.post('/renew', (req, res) => {
 app.post('/unregister', (req, res) => {
   const { registryID } = req.body;
   if (!registryID || !registry[registryID]) {
-    log('unregister-failed', { registryID }, 'warn');
     return res.status(404).json({ error: 'Service not found in registry' });
   }
   delete registry[registryID];
@@ -61,11 +55,9 @@ app.post('/unregister', (req, res) => {
     const binding = bindings[bindingID];
     if (binding.sourceRegistryID === registryID || binding.targetRegistryID === registryID) {
       delete bindings[bindingID];
-      log('unbind-auto', { bindingID });
     }
   });
 
-  log('unregister', { registryID });
   res.status(204).send();
 });
 
@@ -78,7 +70,6 @@ app.get('/find', (req, res) => {
     const mediaMatch = !mediaType || service.mediaTypes.includes(mediaType);
     return tagMatch && profileMatch && mediaMatch;
   });
-  log('find', { filters: req.query, matches: matches.length });
   res.status(200).json(matches);
 });
 
@@ -86,7 +77,6 @@ app.get('/find', (req, res) => {
 app.post('/bind', (req, res) => {
   const { sourceRegistryID, targetRegistryID } = req.body;
   if (!registry[sourceRegistryID] || !registry[targetRegistryID]) {
-    log('bind-failed', { sourceRegistryID, targetRegistryID }, 'warn');
     return res.status(404).json({ error: 'Source or target service not found' });
   }
 
@@ -98,7 +88,6 @@ app.post('/bind', (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  log('bind', { bindingID, sourceRegistryID, targetRegistryID });
   res.status(201).location(`/bindings/${bindingID}`).json({ bindingID });
 });
 
@@ -106,11 +95,9 @@ app.post('/bind', (req, res) => {
 app.post('/unbind', (req, res) => {
   const { bindingID } = req.body;
   if (!bindings[bindingID]) {
-    log('unbind-failed', { bindingID }, 'warn');
     return res.status(404).json({ error: 'Binding not found' });
   }
   delete bindings[bindingID];
-  log('unbind', { bindingID });
   res.status(204).send();
 });
 
@@ -158,5 +145,6 @@ app.get('/endpoints', (req, res) => {
 });
 
 app.listen(port, () => {
-  log('startup', { port });
+  console.log(`DISCO registry running on port ${port}`);
 });
+

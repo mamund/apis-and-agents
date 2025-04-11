@@ -5,7 +5,6 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const { log } = require('./logger');
 const port = process.env.PORT || 4500;
 const registryURL = 'http://localhost:4000/register';
 
@@ -18,7 +17,6 @@ const stateStore = {};
 app.get('/state/:id', (req, res) => {
   const { id } = req.params;
   const state = stateStore[id] || {};
-  log('read-state', { id, result: state });
   res.status(200).json(state);
 });
 
@@ -36,7 +34,6 @@ app.post('/state/:id', (req, res) => {
     ...update
   };
 
-  log('update-state', { id, update });
   res.status(200).json({ status: 'updated', state: stateStore[id] });
 });
 
@@ -51,7 +48,6 @@ app.post('/state', (req, res) => {
 
   stateStore[stateId] = initialState;
 
-  log('create-state', { stateId, initialState });
   res.status(201).json({ stateURL: `http://localhost:${port}/state/${stateId}` });
 });
 
@@ -59,7 +55,6 @@ app.post('/state', (req, res) => {
 app.delete('/state/:id', (req, res) => {
   const { id } = req.params;
   delete stateStore[id];
-  log('delete-state', { id });
   res.status(204).send();
 });
 
@@ -118,9 +113,9 @@ const registerService = async () => {
 
   try {
     const response = await axios.post(registryURL, serviceInfo);
-    log('register', { registryID: response.data.registryID });
+    console.log(`Shared state service registered as ${response.data.registryID}`);
   } catch (error) {
-    log('register-failed', { error: error.message }, 'error');
+    console.error('Shared state service registration failed:', error.message);
   }
 };
 
@@ -156,13 +151,12 @@ app.patch('/state/:id', (req, res) => {
 
   target[keys[keys.length - 1]] = value;
 
-  log('patch-state', { id, op, path, value });
   return res.status(200).json({ status: 'patched', state: stateStore[id] });
 });
 
 
 app.listen(port, () => {
-  log('startup', { port });
+  console.log(`Shared State Service running on port ${port}`);
   //registerService();
 });
 
