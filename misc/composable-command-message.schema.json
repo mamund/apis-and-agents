@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/composable-command-message.json",
+  "title": "Composable Command Message",
+  "description": "A structured command message for composable services using execute/repeat/revert interfaces.",
+  "type": "object",
+  "required": [
+    "command",
+    "resource"
+  ],
+  "properties": {
+    "command": {
+      "type": "string",
+      "enum": [
+        "create",
+        "read",
+        "update",
+        "delete",
+        "list",
+        "filter"
+      ],
+      "description": "The action to perform on the target resource."
+    },
+    "resource": {
+      "type": "string",
+      "description": "The logical type of resource (e.g. 'todo', 'user', 'invoice')."
+    },
+    "id": {
+      "type": "string",
+      "description": "The identifier of the resource instance. Required for read, update, and delete."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Input data for create/update, or filter parameters for filtering. For filtering, string fields use case-insensitive 'contains' matching. Numbers, booleans, and null use strict equality. Records missing a field mentioned in the filter are considered non-matches."
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Optional metadata such as trace info, initiator, request ID, flags, etc."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "command": {
+            "const": "create"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "payload"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command": {
+            "enum": [
+              "read",
+              "update",
+              "delete"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command": {
+            "const": "update"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "payload"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "command": {
+            "const": "filter"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "payload"
+        ]
+      }
+    }
+  ]
+}
