@@ -68,7 +68,7 @@
       },
       "inputs" : {
         "required" : [],
-        "optional" : ["givenName","familyName", "email", "telephone", "status"],
+        "optional" : ["givenName","familyName", "email", "telephone", "status"]
       },
       "output" : {
         "type" : "person",

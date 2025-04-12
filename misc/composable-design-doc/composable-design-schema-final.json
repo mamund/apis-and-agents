@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Composable Design Document",
+  "type": "object",
+  "required": [
+    "title",
+    "resourceType",
+    "version",
+    "resourceSchema",
+    "commands"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "resourceType": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "authorization": {
+      "type": "object",
+      "description": "Authorization policies (e.g. roles, scopes, expressions). Evolving area.",
+      "additionalProperties": true
+    },
+    "resourceSchema": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "patternProperties": {
+          "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "object",
+                  "array"
+                ]
+              },
+              "enum": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "format": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "inputs",
+          "output"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "transitionType": {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "type": "boolean"
+              },
+              "idempotent": {
+                "type": "boolean"
+              },
+              "reversible": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "safe",
+              "idempotent",
+              "reversible"
+            ],
+            "additionalProperties": false
+          },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "optional": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "defaults": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "required",
+              "optional"
+            ]
+          },
+          "output": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "returns": {
+                "type": "string",
+                "enum": [
+                  "object",
+                  "array",
+                  "none"
+                ]
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTP status code to return. Optional. Defaults to 200 unless `returns` is 'none', in which case it defaults to 204."
+              }
+            },
+            "required": [
+              "type",
+              "returns"
+            ]
+          },
+          "authorization": {
+            "type": "object",
+            "description": "Authorization policies (e.g. roles, scopes, expressions). Evolving area.",
+            "additionalProperties": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "integer"
+                },
+                "when": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "statusCode",
+                "when"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
