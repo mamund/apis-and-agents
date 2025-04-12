@@ -11,11 +11,12 @@ This document defines the format and semantics of the Composable Design Document
 | `title`             | `string`          | ✅       | Human-readable name of the service                           |
 | `resourceType`      | `string`          | ✅       | Logical identifier used for routing and storage              |
 | `version`           | `string`          | ✅       | Version of the design spec format                            |
-| `description`       | `string`          | ✅       | Summary of what the service does                             |
-| `supportedCommands` | `array[string]`   | ✅       | List of command names this service supports                  |
+| `description`       | `string`          | optional | Summary of what the service does *(best practice)*           |
 | `resourceSchema`    | `object`          | ✅       | Schema definition of the resource type                       |
-| `filters`           | `array[string]`   | ✅       | List of fields that can be used with the `filter` command    |
 | `commands`          | `object`          | ✅       | Detailed behavior for each command                           |
+| `authorization`     | `object`          | optional | Top-level default authorization policy                       |
+
+> **Best Practice**: Provide a top-level `description` of the service to improve readability, documentation generation, and onboarding.
 
 ---
 
@@ -39,12 +40,14 @@ Each command in `commands` includes the following fields:
 ### Common Fields
 | Field              | Type                       | Required | Description                                                  |
 |--------------------|----------------------------|----------|--------------------------------------------------------------|
-| `description`      | `string`                   | ✅       | What this command does                                       |
-| `transitionType`   | `object`                   | ✅       | Behavior semantics                                            |
+| `description`      | `string`                   | optional | Short summary of what the command does *(best practice)*     |
+| `transitionType`   | `object`                   | optional | Behavior semantics *(strongly recommended)*                  |
 | `inputs`           | `object`                   | ✅       | Declares required, optional, default fields                  |
 | `output`           | `object`                   | ✅       | What this command returns                                    |
-| `authorization`    | `object`                   | ✅       | Which roles are allowed to invoke this command               |
+| `authorization`    | `object`                   | optional | Which roles are allowed to invoke this command               |
 | `errors`           | `array[object]`            | optional | Declares expected error cases                                |
+
+> **Best Practice**: Provide a `description` and `transitionType` for each command. These improve readability, enhance developer tooling, and support documentation, validation, and test generation.
 
 ### `transitionType`
 ```json
@@ -54,6 +57,14 @@ Each command in `commands` includes the following fields:
   "reversible": true | false
 }
 ```
+If `transitionType` is missing:
+- The engine assumes a **conservative default**, equivalent to unsafe, one-shot behavior:
+  ```json
+  { "safe": false, "idempotent": false, "reversible": false }
+  ```
+- This mirrors the behavior of HTTP `POST` operations.
+
+> ⚠️ **Caution**: Commands that are actually safe (e.g., `read`, `filter`, `list`) may be misinterpreted if `transitionType` is omitted. It is strongly recommended to include this field explicitly for accurate orchestration, validation, and runtime behavior.
 
 ### `inputs`
 ```json
@@ -85,6 +96,8 @@ If `statusCode` is not provided:
 ```
 If the list is empty or missing, the command is assumed to be public.
 
+If a top-level `authorization` block is present, it is treated as the default for all commands **unless a specific command-level `authorization` block is defined**, in which case the command-level one takes precedence.
+
 ### `errors`
 ```json
 "errors": [
@@ -98,9 +111,10 @@ If empty or missing, the engine applies a defaultErrorMap.
 
 ## Design-Time Defaults
 
+- **Missing `transitionType`** → default to `{ safe: false, idempotent: false, reversible: false }`
 - **Missing `statusCode`** → default to `200` if returning content
 - **Missing `errors`** → fallback to a default error map
-- **Missing `authorization`** → allow all users
+- **Missing `authorization`** → allow all users (or inherit from top-level)
 - **Unrecognized commands** → may be interpreted using default patterns (e.g. `status` → `update`)
 
 ---
@@ -115,3 +129,5 @@ It can power:
 - Documentation tooling
 
 The Composable Design Document format is meant to evolve safely, with backward-compatible extensions, plugin points, and optional fields to support a growing ecosystem.
+
+

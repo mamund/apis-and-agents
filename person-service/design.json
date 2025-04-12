@@ -3,15 +3,7 @@
   "resourceType" : "person",
   "version" : "1.0.0",
   "description" : "A simple composable service that manages a collection of person records",
-  "supportedCommands" : [
-    "list",
-    "filter",
-    "read",
-    "create",
-    "update",
-    "delete",
-    "status"
-  ],
+  "authorization" : {"roles" : []},
   "resourceSchema" : {
     "person" : {
       "id" : {"type" : "string"},
@@ -23,13 +15,6 @@
       "dateCreated" : {"type" : "string", "format" : "ISO8601"}
     }
   },
-  "filters" : [
-    "givenName",
-    "familyName",
-    "email",
-    "telephone",
-    "status"
-  ],
   "commands" : {
     "create" : {
       "description" : "Creates a new Person record",

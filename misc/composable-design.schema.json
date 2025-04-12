@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/composable-design.schema.json",
+  "title": "Composable Design Document",
+  "type": "object",
+  "required": [
+    "title",
+    "resourceType",
+    "version",
+    "resourceSchema",
+    "commands"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "resourceType": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "resourceSchema": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "object",
+              "array"
+            ]
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "format": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "transitionType": {
+            "type": "object",
+            "properties": {
+              "safe": {
+                "type": "boolean"
+              },
+              "idempotent": {
+                "type": "boolean"
+              },
+              "reversible": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "safe",
+              "idempotent",
+              "reversible"
+            ],
+            "additionalProperties": false
+          },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "required": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "optional": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "defaults": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            },
+            "required": [
+              "required",
+              "optional"
+            ],
+            "additionalProperties": false
+          },
+          "output": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "returns": {
+                "type": "string",
+                "enum": [
+                  "object",
+                  "array",
+                  "none"
+                ]
+              },
+              "statusCode": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "type",
+              "returns"
+            ],
+            "additionalProperties": false
+          },
+          "authorization": {
+            "type": "object",
+            "properties": {
+              "roles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "integer"
+                },
+                "when": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "statusCode",
+                "when"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "inputs",
+          "output"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
