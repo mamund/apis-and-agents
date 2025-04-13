@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/job-definition.schema.json",
+  "title": "Job Definition",
+  "description": "Schema for a composable job definition used by job-control.",
+  "type": "object",
+  "required": [
+    "name",
+    "steps"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the job"
+    },
+    "sharedStateURL": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional URL to the shared state service"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "tasks"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Step name"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "execute",
+              "repeat",
+              "revert"
+            ],
+            "description": "Execution mode for the step"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "tag",
+                "input"
+              ],
+              "properties": {
+                "tag": {
+                  "type": "string",
+                  "description": "Service discovery tag"
+                },
+                "input": {
+                  "type": "object",
+                  "description": "Structured message input"
+                },
+                "storeResultAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "targetPath"
+                      ],
+                      "properties": {
+                        "targetPath": {
+                          "type": "string"
+                        },
+                        "sourcePath": {
+                          "type": "string"
+                        },
+                        "onlyOnStatus": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "targetPath"
+                        ],
+                        "properties": {
+                          "targetPath": {
+                            "type": "string"
+                          },
+                          "sourcePath": {
+                            "type": "string"
+                          },
+                          "onlyOnStatus": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "description": "Where to store result output in shared state"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "If false, this task is skipped during job execution. Defaults to true."
+                }
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "If false, the entire step is skipped during job execution. Defaults to true."
+          }
+        }
+      }
+    }
+  }
+}

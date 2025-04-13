@@ -1,14 +1,13 @@
 {
-  "sharedState": {
-    "initialMessage": "hello world"
-  },
+  "sharedStateURL": "#",
   "name": "test-todo-service",
   "steps": [
     {
       "name": "delete-todo",
+      "enabled": true,
       "tasks": [
         {
-          "service": "todo-service",
+          "tag": "todo",
           "input": {
             "command": "delete",
             "resource": "todo",
@@ -16,7 +15,7 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "$state.todoDelete"
+              "targetPath": "/state/todoDelete"
             }
           ]
         }
@@ -24,8 +23,10 @@
     },
     {
       "name": "create-todo",
+      "enabled": true,
       "tasks": [
         {
+          "tag": "todo",          
           "service": "todo-service",
           "input": {
             "command": "create",
@@ -38,7 +39,7 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "$state.todoCreated"
+              "targetPath": "/state/todoCreated"
             }
           ]
         }
@@ -46,8 +47,10 @@
     },
     {
       "name": "update-todo",
+      "enabled": true,
       "tasks": [
         {
+          "tag": "todo",
           "service": "todo-service",
           "input": {
             "command": "update",
@@ -59,7 +62,7 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "$state.todoUpdated"
+              "targetPath": "/state/todoUpdated"
             }
           ]
         }
@@ -67,8 +70,10 @@
     },
     {
       "name": "read-todo",
+      "enabled": true,
       "tasks": [
         {
+          "tag": "todo",
           "service": "todo-service",
           "input": {
             "command": "read",
@@ -77,7 +82,7 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "$state.todoRead"
+              "targetPath": "/state/todoRead"
             }
           ]
         }
@@ -85,10 +90,12 @@
     },
     {
       "name": "todo-revert",
+      "enabled": true,
       "mode": "revert",
       "tasks": [
         {
-          "service": "todo-service",
+         "tag": "todo",
+         "service": "todo-service",
           "input": {
             "command": "create",
             "resource": "todo",
@@ -96,7 +103,7 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "$state.todoRevert"
+              "targetPath": "/state/todoRevert"
             }
           ]
         }

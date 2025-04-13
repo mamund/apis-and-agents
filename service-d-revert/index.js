@@ -5,6 +5,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+const { log } = require('./logger');
 const port = process.env.PORT || 4600;
 const registryURL = 'http://localhost:4000/register';
 
@@ -41,14 +42,17 @@ app.post('/execute', async (req, res) => {
 
     // Apply update
     await axios.post(stateURL, { [key]: newValue });
+    log('execute', { stateURL, key, newValue, requestId, previousValue });
     res.status(200).json({ status: 'updated', newValue, previousValue });
   } catch (error) {
+    log('execute-failed', { stateURL, key, requestId, error: error.message }, 'error');
     res.status(500).json({ error: 'Failed to execute update', details: error.message });
   }
 });
 
 // POST /repeat (noop)
 app.post('/repeat', (req, res) => {
+  log('repeat', { status: 'noop-repeat' });
   res.status(200).json({ status: 'noop-repeat' });
 });
 
@@ -64,7 +68,8 @@ app.post('/revert', async (req, res) => {
   try {
     await axios.post(history.stateURL, { [history.key]: history.previousValue });
     delete operationHistory[requestId];
-    res.status(200).json({ status: 'reverted', key: history.key, restoredValue: history.previousValue });
+    log('revert', { requestId, key: history.key, restoredValue: history.previousValue });
+  res.status(200).json({ status: 'reverted', key: history.key, restoredValue: history.previousValue });
   } catch (error) {
     res.status(500).json({ error: 'Failed to revert update', details: error.message });
   }
@@ -102,14 +107,14 @@ app.get('/forms', (req, res) => {
 const registerService = async () => {
   try {
     const response = await axios.post(registryURL, serviceInfo);
-    console.log(`Registered as ${response.data.registryID}`);
+    log('register', { registryID: response.data.registryID });
   } catch (error) {
-    console.error('Service registration failed:', error.message);
+    log('register-failed', { error: error.message }, 'error');
   }
 };
 
 app.listen(port, () => {
-  console.log(`Service D running on port ${port}`);
+  log('startup', { port });
   registerService();
 });
 

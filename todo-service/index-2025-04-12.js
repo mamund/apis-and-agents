@@ -3,7 +3,6 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
-const { log } = require('./logger');
 app.use(express.json());
 
 const PORT = process.env.PORT || 4001;
@@ -100,12 +99,9 @@ function createHandler(mode) {
       const message = req.body;
       const handler = mode === 'revert' ? handleRevert : handleCommand;
       const { result, error, status } = handler(message, mode);
-      if (error) return log(`${mode}-failed`, { message, error }, 'warn');
-      res.status(status).json({ error });
-      log(mode, { message, result });
+      if (error) return res.status(status).json({ error });
       res.status(status).json(result);
     } catch (err) {
-      log(`${mode}-exception`, { message: req.body, error: err.message }, 'error');
       res.status(500).json({ error: 'Internal error' });
     }
   };
@@ -143,7 +139,7 @@ app.get('/forms', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  log('startup', { port: PORT });
+  console.log(`TODO service running on port ${PORT}`);
   registerWithDiscovery();
 });
 
@@ -161,9 +157,9 @@ async function registerWithDiscovery() {
     };
 
     const response = await axios.post(registryURL, serviceInfo);
-    log('register', { registryID: response.data.registryID });
+    console.log(`Registered as ${response.data.registryID}`);
   } catch (err) {
-    log('register-failed', { error: err.message }, 'error');
+    console.error('Service registration failed:', err.message);
   }
 }
 

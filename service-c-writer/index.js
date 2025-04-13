@@ -5,6 +5,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
+const { log } = require('./logger');
 const port = process.env.PORT || 4300;
 const registryURL = 'http://localhost:4000/register';
 
@@ -28,19 +29,23 @@ app.post('/execute', async (req, res) => {
   try {
     const update = { [newKey]: newValue };
     await axios.post(stateURL, update);
+    log('execute', { stateURL, update });
     res.status(200).json({ status: 'state updated', update });
   } catch (error) {
+    log('execute-failed', { stateURL, update, error: error.message }, 'error');
     res.status(500).json({ error: 'Failed to update state', details: error.message });
   }
 });
 
 // POST /repeat
 app.post('/repeat', (req, res) => {
+  log('repeat', { status: 'noop-repeat' });
   res.status(200).json({ status: 'noop-repeat' });
 });
 
 // POST /revert
 app.post('/revert', (req, res) => {
+  log('revert', { status: 'noop-revert' });
   res.status(200).json({ status: 'noop-revert' });
 });
 
@@ -61,14 +66,14 @@ app.get('/forms', (req, res) => {
 const registerService = async () => {
   try {
     const response = await axios.post(registryURL, serviceInfo);
-    console.log(`Registered as ${response.data.registryID}`);
+    log('register', { registryID: response.data.registryID });
   } catch (error) {
-    console.error('Service registration failed:', error.message);
+    log('register-failed', { error: error.message }, 'error');
   }
 };
 
 app.listen(port, () => {
-  console.log(`Service C Writer running on port ${port}`);
+  log('startup', { port });
   registerService();
 });
 

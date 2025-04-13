@@ -5,7 +5,6 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const { log } = require('./logger');
 const port = process.env.PORT || 4100;
 const registryURL = 'http://localhost:4000/register';
 
@@ -26,21 +25,19 @@ app.post('/execute', (req, res) => {
     return res.status(400).json({ error: 'Input must be a string' });
   }
   const result = input.toUpperCase();
-  log("execute", { input, result });
   res.status(200).json({ result });
+  console.log(result);
 });
 
 // POST /repeat (same as execute)
 app.post('/repeat', (req, res) => {
   const { input } = req.body;
   const result = input ? input.toUpperCase() : '';
-  log("repeat", { input, result });
   res.status(200).json({ result });
 });
 
 // POST /revert (noop)
 app.post('/revert', (req, res) => {
-  log("revert", { status: "noop" });
   res.status(200).json({ status: 'noop' });
 });
 
@@ -76,14 +73,14 @@ app.get('/forms', (req, res) => {
 const registerService = async () => {
   try {
     const response = await axios.post(registryURL, serviceInfo);
-    log("register", { registryID: response.data.registryID });
+    console.log(`Registered as ${response.data.registryID}`);
   } catch (error) {
-    log("register-failed", { error: error.message }, "error");
+    console.error('Service registration failed:', error.message);
   }
 };
 
 app.listen(port, () => {
-  log("startup", { port });
+  console.log(`Service A running on port ${port}`);
   registerService();
 });
 

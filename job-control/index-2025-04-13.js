@@ -45,15 +45,7 @@ app.post('/run-job', async (req, res) => {
   log('job-start', { jobId });
 
   for (const step of job.steps) {
-    if (step.enabled === false) {
-      log("step-skipped", { step: step.name }, "info");
-      continue;
-    }
     const tasks = step.tasks.map(async (task) => {
-      if (task.enabled === false) {
-        log("task-skipped", { step: step.name, task: task.tag }, "info");
-        return { status: "skipped", task: task.tag };
-      }
       try {
         const response = await axios.get(discoveryURL, {
           params: { tag: task.tag }
@@ -93,7 +85,7 @@ app.post('/run-job', async (req, res) => {
             throw new Error('Non-JSON response and no storeResultAt defined');
           }
         }
-        
+
         // Result-to-state wiring
         if (task.storeResultAt && stateURL) {
           const storeInstructions = Array.isArray(task.storeResultAt)
@@ -101,7 +93,7 @@ app.post('/run-job', async (req, res) => {
             : (typeof task.storeResultAt === 'string'
                 ? [{ targetPath: task.storeResultAt }]
                 : [task.storeResultAt]);
-                          
+
           for (const instruction of storeInstructions) {
             const allowed = !instruction.onlyOnStatus || instruction.onlyOnStatus.includes(result.status);
             if (!allowed) continue;
