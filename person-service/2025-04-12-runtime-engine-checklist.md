@@ -19,11 +19,3 @@
 - [ ] Log missing best practices (e.g., `transitionType` not declared)
 - [ ] Include `x-*` metadata in logs for debugging (but don’t act on it yet)
 
----
-
-Whenever you're ready, I can help you:
-- Scaffold the directory structure
-- Stub out the entrypoint and service registration logic
-- Implement `execute` for a working CRUD command
-
-Just say the word and we’ll get building!
