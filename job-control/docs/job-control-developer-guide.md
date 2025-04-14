@@ -79,7 +79,7 @@ Store task results in shared state:
 "storeResultAt": [
   {
     "targetPath": "/todo/output",
-    "sourcePath": "data.result",
+    "sourcePath": "/data/result",
     "onlyOnStatus": [200]
   }
 ]
