@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/job-control.schema.json",
+  "title": "JobControl",
+  "type": "object",
+  "required": [
+    "name",
+    "steps"
+  ],
+  "properties": {
+    "sharedStateURL": {
+      "type": "string",
+      "description": "Optional reference to shared state (may be a placeholder)"
+    },
+    "sharedState": {
+      "type": "object",
+      "description": "Optional embedded initial shared state object"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "tasks"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "mode": {
+            "type": "string",
+            "description": "Execution mode (may include custom or future values)"
+          },
+          "tasks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "tag",
+                "input"
+              ],
+              "properties": {
+                "tag": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "serviceName": {
+                  "type": "string"
+                },
+                "input": {
+                  "type": "object"
+                },
+                "storeResultAt": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "targetPath"
+                      ],
+                      "properties": {
+                        "targetPath": {
+                          "type": "string"
+                        },
+                        "sourcePath": {
+                          "type": "string"
+                        },
+                        "onlyOnStatus": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 100,
+                            "maximum": 599
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "targetPath"
+                        ],
+                        "properties": {
+                          "targetPath": {
+                            "type": "string"
+                          },
+                          "sourcePath": {
+                            "type": "string"
+                          },
+                          "onlyOnStatus": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 100,
+                              "maximum": 599
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "description": "Where to store result output in shared state"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

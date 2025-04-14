@@ -11,15 +11,6 @@ const discoveryURL = 'http://localhost:4000/find';
 
 app.use(express.json());
 
-
-const resolvePointer = (obj, pointer) => {
-  if (!pointer.startsWith('/')) return undefined;
-  return pointer
-    .slice(1)
-    .split('/')
-    .reduce((acc, key) => acc && acc[key], obj);
-};
-
 // Utility: resolve input from shared state
 const resolveInput = async (input, stateURL) => {
   if (!stateURL) return input;
@@ -35,7 +26,7 @@ const resolveInput = async (input, stateURL) => {
 
   for (const [key, value] of Object.entries(input)) {
     if (typeof value === 'object' && value.$fromState) {
-      resolved[key] = resolvePointer(state, value.$fromState);
+      resolved[key] = state[value.$fromState];
     } else {
       resolved[key] = value;
     }
@@ -48,32 +39,12 @@ const resolveInput = async (input, stateURL) => {
 app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
-  // TODO: merge job.sharedState into sharedStateURL via PATCH when available
-  if (job.sharedState && job.sharedStateURL) {
-    log('shared-state-inline-detected', { jobId }, 'debug');
-    // merge logic will go here
-  try {
-      await axios.patch(job.sharedStateURL, {
-        op: 'merge',
-        value: job.sharedState
-      });
-      log('shared-state-merged', { jobId });
-    } catch (err) {
-      log('shared-state-merge-failed', { error: err.message }, 'warn');
-    }
-  }
-  
   const stateURL = job.sharedStateURL;
   const revertStack = [];
 
   log('job-start', { jobId });
 
   for (const step of job.steps) {
-    const activeTasks = step.tasks.filter(t => t.enabled !== false);
-    if (activeTasks.length === 0) {
-      log("step-all-tasks-disabled", { step: step.name }, "info");
-      continue;
-    }
     if (step.enabled === false) {
       log("step-skipped", { step: step.name }, "info");
       continue;
@@ -84,11 +55,7 @@ app.post('/run-job', async (req, res) => {
         return { status: "skipped", task: task.tag };
       }
       try {
-        if (!task.tag) {
-        log('task-missing-tag', { step: step.name }, 'warn');
-        return { status: 'error', task: null, error: 'Missing tag in task' };
-      }
-      const response = await axios.get(discoveryURL, {
+        const response = await axios.get(discoveryURL, {
           params: { tag: task.tag }
         });
 
@@ -99,11 +66,7 @@ app.post('/run-job', async (req, res) => {
 
         const mode = step.mode || 'execute';
         const targetForm = form.data.find(f => f.rel === mode);
-        if (!targetForm) {
-          //throw new Error(`No form found for mode '${mode}'`);
-          log('step-unknown-mode', { step: step.name, mode }, 'warn');
-          return { status: 'skipped', reason: 'unknown mode', step: step.name };
-        }
+        if (!targetForm) throw new Error(`No form found for mode '${mode}'`);
 
         const requestId = uuidv4();
         const resolvedInput = await resolveInput(task.input, stateURL);

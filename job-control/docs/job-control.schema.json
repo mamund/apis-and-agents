@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/job-control.schema.json",
+  "title": "JobControl",
+  "type": "object",
+  "required": ["name", "steps"],
+  "properties": {
+    "sharedStateURL": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional reference to shared state"
+    },
+    "name": {
+      "type": "string",
+      "description": "Unique name of the job"
+    },
+    "description": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "tasks"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "mode": {
+            "type": "string",
+            "description": "Execution mode such as 'revert'",
+            "enum": ["sequential", "parallel", "revert"]
+          },
+          "tasks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["tag", "input"],
+              "properties": {
+                "tag": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "serviceName": {
+                  "type": "string",
+                  "description": "Optional service name to route this task"
+                },
+                "input": {
+                  "type": "object",
+                  "description": "Command or data to pass to the task"
+                },
+                "storeResultAt": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["targetPath"],
+                    "properties": {
+                      "sourcePath": {
+                        "type": "string"
+                      },
+                      "targetPath": {
+                        "type": "string"
+                      },
+                      "onlyOnStatus": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

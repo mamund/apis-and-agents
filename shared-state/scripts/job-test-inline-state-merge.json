@@ -1,0 +1,30 @@
+{
+  "name": "test-inline-sharedState",
+  "sharedStateURL": "http://localhost:4500/state/test-inline-merge",
+  "sharedState": {
+    "user": {
+      "id": "u001",
+      "role": "editor"
+    },
+    "flags": {
+      "debug": true
+    }
+  },
+  "steps": [
+    {
+      "name": "log-state",
+      "tasks": [
+        {
+          "tag": "uppercase",
+          "enabled": true,
+          "input": {
+            "input": {
+              "$fromState": "/user/role"
+            }
+          },
+          "storeResultAt": "/state/outputRole"
+        }
+      ]
+    }
+  ]
+}

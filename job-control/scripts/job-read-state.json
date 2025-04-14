@@ -6,7 +6,7 @@
         {
           "tag": "uppercase",
           "input": {
-            "input": {"$fromState" : "message"}
+            "input": {"$fromState" : "/message"}
           },
           "storeResultAt": [
             {

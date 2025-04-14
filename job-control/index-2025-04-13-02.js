@@ -11,15 +11,6 @@ const discoveryURL = 'http://localhost:4000/find';
 
 app.use(express.json());
 
-
-const resolvePointer = (obj, pointer) => {
-  if (!pointer.startsWith('/')) return undefined;
-  return pointer
-    .slice(1)
-    .split('/')
-    .reduce((acc, key) => acc && acc[key], obj);
-};
-
 // Utility: resolve input from shared state
 const resolveInput = async (input, stateURL) => {
   if (!stateURL) return input;
@@ -35,7 +26,7 @@ const resolveInput = async (input, stateURL) => {
 
   for (const [key, value] of Object.entries(input)) {
     if (typeof value === 'object' && value.$fromState) {
-      resolved[key] = resolvePointer(state, value.$fromState);
+      resolved[key] = state[value.$fromState];
     } else {
       resolved[key] = value;
     }
@@ -52,17 +43,7 @@ app.post('/run-job', async (req, res) => {
   if (job.sharedState && job.sharedStateURL) {
     log('shared-state-inline-detected', { jobId }, 'debug');
     // merge logic will go here
-  try {
-      await axios.patch(job.sharedStateURL, {
-        op: 'merge',
-        value: job.sharedState
-      });
-      log('shared-state-merged', { jobId });
-    } catch (err) {
-      log('shared-state-merge-failed', { error: err.message }, 'warn');
-    }
   }
-  
   const stateURL = job.sharedStateURL;
   const revertStack = [];
 

@@ -95,7 +95,7 @@ app.get('/forms', (req, res) => {
       rel: 'patch-state',
       method: 'PATCH',
       href: `${baseUrl}/state/:id`,
-      input: '{ op: "add" | "merge", path?: string, value: any }',
+      input: '{ op: "add", path: string, value: any }',
       output: '{ status: "patched", state: object }'
     },
 
@@ -118,17 +118,8 @@ app.patch('/state/:id', (req, res) => {
     stateStore[id] = {};
   }
 
-  if (op === 'merge') {
-    if (typeof value !== 'object' || value === null) {
-      return res.status(400).json({ error: 'Invalid merge value' });
-    }
-    stateStore[id] = { ...stateStore[id], ...value };
-    log('patch-merge', { id, value });
-    return res.status(200).json({ status: 'merged', state: stateStore[id] });
-  }
-
   if (op !== 'add') {
-    return res.status(400).json({ error: 'Only "add" and "merge" operations are supported' });
+    return res.status(400).json({ error: 'Only "add" operation is supported' });
   }
 
   if (!path || typeof path !== 'string' || !path.startsWith('/')) {

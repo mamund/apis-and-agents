@@ -1,13 +1,30 @@
 {
-  "sharedStateURL": "#",
+  "sharedStateURL": "http://localhost:4500/state/628bd965-fc5e-43cf-8e8d-bea39154d0fd",
   "name": "test-todo-service",
+  "description" : "A short script to exercise the TODO service",
   "steps": [
     {
       "name": "delete-todo",
+      "description" : "to start w/ a clean slate, delete anything from the last run",
       "enabled": true,
       "tasks": [
         {
+          "enabled" : false,
+          "tag": "uppercase",
+          "description" : "run a quick check on the uppercase service",
+          "input": {
+            "input": {"$fromState" : "message"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/results/full"
+            }
+          ]
+        },
+        {
           "tag": "todo",
+          "serviceName" : "todo-service",
+          "enabled" : true,
           "input": {
             "command": "delete",
             "resource": "todo",
@@ -27,7 +44,7 @@
       "tasks": [
         {
           "tag": "todo",          
-          "service": "todo-service",
+          "serviceName": "todo-service",
           "input": {
             "command": "create",
             "resource": "todo",
@@ -51,7 +68,7 @@
       "tasks": [
         {
           "tag": "todo",
-          "service": "todo-service",
+          "serviceName": "todo-service",
           "input": {
             "command": "update",
             "resource": "todo",
@@ -74,7 +91,7 @@
       "tasks": [
         {
           "tag": "todo",
-          "service": "todo-service",
+          "serviceName": "todo-service",
           "input": {
             "command": "read",
             "resource": "todo",
@@ -95,7 +112,7 @@
       "tasks": [
         {
          "tag": "todo",
-         "service": "todo-service",
+         "serviceName": "todo-service",
           "input": {
             "command": "create",
             "resource": "todo",

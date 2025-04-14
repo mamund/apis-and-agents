@@ -22,6 +22,11 @@ app.use(express.json());
 // POST /execute
 app.post('/execute', (req, res) => {
   const { input } = req.body;
+  
+  log( "body", {body:req.body}, "info");
+  log("input", {input:input},"info");
+  
+  
   if (!input || typeof input !== 'string') {
     return res.status(400).json({ error: 'Input must be a string' });
   }
