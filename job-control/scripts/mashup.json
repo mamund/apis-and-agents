@@ -10,7 +10,18 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "/results/uppercase"
+              "targetPath": "/output/text"
+            }
+          ]
+        },
+        {
+          "tag": "timestamp",
+          "input": {
+            "input": {"$fromState" : "/time"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/output/time"
             }
           ]
         }
