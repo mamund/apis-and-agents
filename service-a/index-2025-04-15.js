@@ -1,4 +1,4 @@
-// service-b/index.js
+// service-a/index.js
 
 const express = require('express');
 const axios = require('axios');
@@ -6,43 +6,47 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const { log } = require('./logger');
-const port = process.env.PORT || 4200;
+const port = process.env.PORT || 4100;
 const registryURL = 'http://localhost:4000/register';
 
 const serviceInfo = {
-  serviceName: 'service-b',
+  serviceName: 'service-a',
   serviceURL: `http://localhost:${port}`,
-  tags: ['time', 'timestamp'],
-  semanticProfile: 'urn:example:timestamp',
-  mediaTypes: ['application/json'],
-  pingURL: `http://localhost:${port}/ping`  
+  tags: ['text', 'uppercase'],
+  semanticProfile: 'urn:example:uppercase',
+  mediaTypes: ['application/json']
 };
 
 app.use(express.json());
 
 // POST /execute
 app.post('/execute', (req, res) => {
-  const result = new Date().toISOString();
-  log("execute", { timestamp: result });
-  res.status(200).json({ timestamp: result });
+  const { input } = req.body;
+  
+  log( "body", {body:req.body}, "info");
+  log("input", {input:input},"info");
+  
+  
+  if (!input || typeof input !== 'string') {
+    return res.status(400).json({ error: 'Input must be a string' });
+  }
+  const result = input.toUpperCase();
+  log("execute", { input, result });
+  res.status(200).json({ result });
 });
 
-// POST /repeat (same result as /execute)
+// POST /repeat (same as execute)
 app.post('/repeat', (req, res) => {
-  const result = new Date().toISOString();
-  log("repeat", { timestamp: result });
-  res.status(200).json({ timestamp: result });
+  const { input } = req.body;
+  const result = input ? input.toUpperCase() : '';
+  log("repeat", { input, result });
+  res.status(200).json({ result });
 });
 
 // POST /revert (noop)
 app.post('/revert', (req, res) => {
   log("revert", { status: "noop" });
   res.status(200).json({ status: 'noop' });
-});
-
-// GET /ping
-app.get('/ping', (req, res) => {
-  res.status(200).json({ status: 'ok' });
 });
 
 // GET /forms
@@ -53,15 +57,15 @@ app.get('/forms', (req, res) => {
       rel: 'execute',
       method: 'POST',
       href: `${baseUrl}/execute`,
-      input: [],
-      output: '{ timestamp: string }'
+      input: ['input (string)'],
+      output: '{ result: string }'
     },
     {
       rel: 'repeat',
       method: 'POST',
       href: `${baseUrl}/repeat`,
-      input: [],
-      output: '{ timestamp: string }'
+      input: ['input (string)'],
+      output: '{ result: string }'
     },
     {
       rel: 'revert',
@@ -69,13 +73,6 @@ app.get('/forms', (req, res) => {
       href: `${baseUrl}/revert`,
       input: [],
       output: '{ status: "noop" }'
-    },
-    {
-      rel: 'ping',
-      method: 'GET',
-      href: `${baseUrl}/ping`,
-      input: [],
-      output: '{ status: "ok" }'
     }
   ]);
 });

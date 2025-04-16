@@ -2,28 +2,19 @@
 
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const axios = require('axios');
 const { log } = require('./logger');  // <- Added logger import
-// === Configurable Values (easy to externalize later) ===
-const config = {
-  pingIntervalMs: 30000,      // 30 seconds between checks
-  pingMaxFailures: 3,         // evict after 3 consecutive failures
-  pingTimeoutMs: 5000         // 5 second timeout per ping
-};
-
 const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
 
 // In-memory registry and bindings
-const pingFailures = {};
 const registry = {};
 const bindings = {};
 
 // POST /register
 app.post('/register', (req, res) => {
-  const { serviceName, serviceURL, tags = [], semanticProfile = '', mediaTypes = [], pingURL = '' } = req.body;
+  const { serviceName, serviceURL, tags = [], semanticProfile = '', mediaTypes = [] } = req.body;
   if (!serviceName || !serviceURL) {
     log('register-failed', { reason: 'missing fields', input: req.body }, 'warn');
     return res.status(400).json({ error: 'serviceName and serviceURL are required' });
@@ -37,7 +28,6 @@ app.post('/register', (req, res) => {
     tags,
     semanticProfile,
     mediaTypes,
-    pingURL,
     lastRenewed: new Date().toISOString()
   };
 
@@ -65,7 +55,6 @@ app.post('/unregister', (req, res) => {
     return res.status(404).json({ error: 'Service not found in registry' });
   }
   delete registry[registryID];
-  delete pingFailures[registryID];
 
   // Remove any bindings involving this service
   Object.keys(bindings).forEach(bindingID => {
@@ -171,38 +160,3 @@ app.get('/endpoints', (req, res) => {
 app.listen(port, () => {
   log('startup', { port });
 });
-
-
-setInterval(async () => {
-  const entries = Object.entries(registry);
-  for (const [registryID, service] of entries) {
-    if (!service.pingURL) continue;
-
-    try {
-      const response = await axios.get(service.pingURL, { timeout: config.pingTimeoutMs });
-      if (response.status === 200) {
-        pingFailures[registryID] = 0;
-        log('ping-ok', { registryID, pingURL: service.pingURL });
-      } else {
-        throw new Error(`Non-200 status: ${response.status}`);
-      }
-    } catch (err) {
-      pingFailures[registryID] = (pingFailures[registryID] || 0) + 1;
-      log('ping-failed', { registryID, attempt: pingFailures[registryID], error: err.message }, 'warn');
-
-      if (pingFailures[registryID] >= config.pingMaxFailures) {
-        log('evict', { registryID, reason: '3 consecutive ping failures' }, 'error');
-        delete registry[registryID];
-        delete pingFailures[registryID];
-
-        Object.keys(bindings).forEach(bindingID => {
-          const binding = bindings[bindingID];
-          if (binding.sourceRegistryID === registryID || binding.targetRegistryID === registryID) {
-            delete bindings[bindingID];
-            log('unbind-auto', { bindingID });
-          }
-        });
-      }
-    }
-  }
-}, config.pingIntervalMs);

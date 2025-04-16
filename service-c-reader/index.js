@@ -14,7 +14,8 @@ const serviceInfo = {
   serviceURL: `http://localhost:${port}`,
   tags: ['state', 'read'],
   semanticProfile: 'urn:example:state-read',
-  mediaTypes: ['application/json']
+  mediaTypes: ['application/json'],
+  pingURL: `http://localhost:${port}/ping`  
 };
 
 app.use(express.json());
@@ -49,6 +50,10 @@ app.post('/revert', (req, res) => {
   res.status(200).json({ status: 'noop-revert' });
 });
 
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // GET /forms
 app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -59,7 +64,14 @@ app.get('/forms', (req, res) => {
       href: `${baseUrl}/execute`,
       input: ['stateURL', 'key'],
       output: '{ value: any }'
-    }
+    },
+    {
+      rel: 'ping',
+      method: 'GET',
+      href: `${baseUrl}/ping`,
+      input: [],
+      output: '{ status: "ok" }'
+    }    
   ]);
 });
 

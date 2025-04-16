@@ -14,7 +14,8 @@ const serviceInfo = {
   serviceURL: `http://localhost:${port}`,
   tags: ['revertible', 'state'],
   semanticProfile: 'urn:example:revertible-op',
-  mediaTypes: ['application/json']
+  mediaTypes: ['application/json'],
+  pingURL: `http://localhost:${port}/ping`
 };
 
 app.use(express.json());
@@ -75,6 +76,11 @@ app.post('/revert', async (req, res) => {
   }
 });
 
+// GET /ping
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // GET /forms
 app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -99,6 +105,13 @@ app.get('/forms', (req, res) => {
       href: `${baseUrl}/revert`,
       input: ['requestId'],
       output: '{ status, key, restoredValue }'
+    },
+    {
+      rel: 'ping',
+      method: 'GET',
+      href: `${baseUrl}/ping`,
+      input: [],
+      output: '{ status: "ok" }'
     }
   ]);
 });

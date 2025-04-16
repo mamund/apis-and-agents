@@ -31,7 +31,7 @@ echo "Starting service-c-writer..."
 node service-c-writer/index.js > logs/service-c-writer.log 2>&1 &
 
 echo "Starting service-d..."
-node service-d/index.js > logs/service-d.log 2>&1 &
+node service-d-revert/index.js > logs/service-d-revert.log 2>&1 &
 
 echo "Starting todo-service..."
 node todo-service/index.js > logs/todo-service.log 2>&1 &

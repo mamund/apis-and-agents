@@ -14,7 +14,8 @@ const serviceInfo = {
   serviceURL: `http://localhost:${port}`,
   tags: ['text', 'uppercase'],
   semanticProfile: 'urn:example:uppercase',
-  mediaTypes: ['application/json']
+  mediaTypes: ['application/json'],
+  pingURL: `http://localhost:${port}/ping`
 };
 
 app.use(express.json());
@@ -54,6 +55,13 @@ app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   res.json([
     {
+      rel: 'ping',
+      method: 'GET',
+      href: `${baseUrl}/ping`,
+      input: [],
+      output: '{ status: "ok" }'
+    },
+    {
       rel: 'execute',
       method: 'POST',
       href: `${baseUrl}/execute`,
@@ -86,6 +94,13 @@ const registerService = async () => {
     log("register-failed", { error: error.message }, "error");
   }
 };
+
+
+// GET /ping
+app.get('/ping', (req, res) => {
+  log("ping", {status:'ok'},"info");
+  res.status(200).json({ status: 'ok' });
+});
 
 app.listen(port, () => {
   log("startup", { port });

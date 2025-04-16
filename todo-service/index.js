@@ -118,6 +118,11 @@ app.post('/execute', createHandler('execute'));
 app.post('/repeat', createHandler('repeat'));
 app.post('/revert', createHandler('revert'));
 
+// GET /ping
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Forms endpoint (standardized)
 app.get('/forms', (req, res) => {
   res.json([
@@ -141,6 +146,13 @@ app.get('/forms', (req, res) => {
       href: `${BASE_URL}/revert`,
       input: ['command', 'resource', 'id'],
       output: '{ status: "noop" | reverted: true }'
+    },
+    {
+      rel: 'ping',
+      method: 'GET',
+      href: `${BASE_URL}/ping`,
+      input: [],
+      output: '{ status: "ok" }'
     }
   ]);
 });
@@ -160,7 +172,8 @@ async function registerWithDiscovery() {
       serviceURL: `http://localhost:${PORT}`,
       tags: ['todo', 'create', 'read', 'update', 'delete', 'filter'],
       semanticProfile: 'urn:example:todo',
-      mediaTypes: ['application/json']
+      mediaTypes: ['application/json'],
+      pingURL: `http://localhost:${PORT}/ping`
     };
 
     const response = await axios.post(registryURL, serviceInfo);

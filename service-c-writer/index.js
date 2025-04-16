@@ -14,7 +14,8 @@ const serviceInfo = {
   serviceURL: `http://localhost:${port}`,
   tags: ['state', 'write'],
   semanticProfile: 'urn:example:state-write',
-  mediaTypes: ['application/json']
+  mediaTypes: ['application/json'],
+  pingURL: `http://localhost:${port}/ping`
 };
 
 app.use(express.json());
@@ -49,6 +50,11 @@ app.post('/revert', (req, res) => {
   res.status(200).json({ status: 'noop-revert' });
 });
 
+// GET /ping
+app.get('/ping', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // GET /forms
 app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -59,6 +65,13 @@ app.get('/forms', (req, res) => {
       href: `${baseUrl}/execute`,
       input: ['stateURL', 'newKey', 'newValue'],
       output: '{ status: string, update: object }'
+    },
+    {
+      rel: 'ping',
+      method: 'GET',
+      href: `${baseUrl}/ping`,
+      input: [],
+      output: '{ status: "ok" }'
     }
   ]);
 });
