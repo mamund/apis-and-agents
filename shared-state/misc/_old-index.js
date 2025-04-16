@@ -84,6 +84,14 @@ app.get('/forms', (req, res) => {
       output: '{ status: string, state: object }'
     },
     {
+      rel: 'patch-state',
+      method: 'PATCH',
+      href: `${baseUrl}/state/:id`,
+      input: '{ op: "add", path: string, value: any }',
+      output: '{ status: "patched", state: object }'
+    },
+
+    {
       rel: 'delete-state',
       method: 'DELETE',
       href: `${baseUrl}/state/:id`,
@@ -110,6 +118,41 @@ const registerService = async () => {
     console.error('Shared state service registration failed:', error.message);
   }
 };
+
+
+
+// PATCH /state/:id — apply { op, path, value } updates (supports "add")
+app.patch('/state/:id', (req, res) => {
+  const { id } = req.params;
+  const { op, path, value } = req.body;
+
+  if (!stateStore[id]) {
+    stateStore[id] = {};
+  }
+
+  if (op !== 'add') {
+    return res.status(400).json({ error: 'Only "add" operation is supported' });
+  }
+
+  if (!path || typeof path !== 'string' || !path.startsWith('/')) {
+    return res.status(400).json({ error: 'Invalid or missing path' });
+  }
+
+  const keys = path.split('/').filter(Boolean);
+  let target = stateStore[id];
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    if (!(key in target) || typeof target[key] !== 'object') {
+      target[key] = {};
+    }
+    target = target[key];
+  }
+
+  target[keys[keys.length - 1]] = value;
+
+  return res.status(200).json({ status: 'patched', state: stateStore[id] });
+});
 
 
 app.listen(port, () => {
