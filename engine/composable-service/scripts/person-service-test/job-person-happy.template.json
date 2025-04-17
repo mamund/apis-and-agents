@@ -1,0 +1,46 @@
+{
+  "sharedStateURL": "",
+  "name": "test-person-happy-path",
+  "description" : "run through person commands",
+  "steps": [
+    {
+      "enabled" : false,
+      "name": "read",
+      "tasks": [
+        {
+          "tag": "person",
+          "service" : "person",
+          "input": {
+            "command" : "read",
+            "resource" : "person",
+            "id":"q1w2e3r4"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/results/read"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "enabled" : false,
+      "name": "list",
+      "tasks": [
+        {
+          "tag" : "person",
+          "service": "person",
+          "input": {
+            "command": "list",
+            "resource" : "person"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/results/list"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

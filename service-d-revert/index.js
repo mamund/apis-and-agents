@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const { log } = require('./logger');
-const port = process.env.PORT || 4600;
+const port = process.env.PORT || 4650;
 const registryURL = 'http://localhost:4000/register';
 
 const serviceInfo = {

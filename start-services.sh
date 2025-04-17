@@ -36,4 +36,7 @@ node service-d-revert/index.js > logs/service-d-revert.log 2>&1 &
 echo "Starting todo-service..."
 node todo-service/index.js > logs/todo-service.log 2>&1 &
 
+echo "Starting composable-engine..."
+node engine/composable-service/index.js > logs/engine.log 2>&1 &
+
 echo "All services launched. Logs available in ./logs/"

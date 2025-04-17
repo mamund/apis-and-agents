@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # List of known ports for the services
-PORTS=(4000 4001 4100 4200 4300 4400 4500 4600 4700)
+PORTS=(4000 4001 4100 4200 4300 4400 4500 4600 4650 4700)
 
 echo "Stopping services..."
 

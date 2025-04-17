@@ -1,0 +1,172 @@
+{
+  "title" : "Person Service",
+  "version" : "1.0.0",
+  "description" : "A simple composable service that manages a collection of person records",
+  "serviceInfo" : {
+    "serviceName": "person",
+    "description": "Manages a collection of person records",
+    "tags": ["person"],
+    "semanticProfile": "urn:example:person",
+    "mediaTypes": ["application/json"]
+  },
+  "authorization" : {"roles" : []}, 
+  "resourceType" : "person",
+  "resourceSchema" : {
+    "person" : {
+      "id" : {"type" : "string"},
+      "givenName" : {"type" : "string"},
+      "familyName" : {"type" : "string"},
+      "email" : {"type" : "string"},
+      "telephone" : {"type" : "string"},
+      "status" : {"type" : "string", "enum" : ["pending", "active","suspended"]},
+      "dateCreated" : {"type" : "string", "format" : "ISO8601"}
+    }
+  },
+  "commands" : {
+    "create" : {
+      "description" : "Creates a new Person record",
+      "transitionType" : {
+        "safe" : false,
+        "idempotent" : true,
+        "reversible" : true
+      },
+      "inputs" : {
+        "required" : ["email"],
+        "optional" : ["id","givenName","familyName","telephone","status"],
+        "defaults" : {"status" : "pending"},
+        "rules" : [{"id" : "generateIfMissing"}]
+      },
+      "output" : {
+        "type" : "person",
+        "returns" : "object",
+        "statusCode" : 201
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    },
+    "list" : {
+      "description" : "Returns a list of Person records",
+      "transitionType" : {
+        "safe" : true,
+        "idempotent" : true,
+        "reversible" : false
+      },
+      "inputs" : {
+        "required": [],
+        "optional" : []
+      }, 
+      "output" : {
+        "type" : "person",
+        "returns" : "array"
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    },
+    "filter" : {
+      "description" : "Returns a filtered list of Person records",
+      "transitionType" : {
+        "safe" : true,
+        "idempotent" : true,
+        "reversible" : false
+      },
+      "inputs" : {
+        "required" : [],
+        "optional" : ["givenName","familyName", "email", "telephone", "status"]
+      },
+      "output" : {
+        "type" : "person",
+        "returns" : "array"
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    },
+    "read" : {
+      "description" : "Returns a single Person record",
+      "transitionType" : {
+        "safe" : true,
+        "idempotent" : true,
+        "reversible" : false
+      },
+      "inputs" : {
+        "required" : ["id"],
+        "optional" : []
+      },
+      "output" : {
+        "type" : "person",
+        "returns" : "object"
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    }, 
+    "update" : {
+      "description" : "Updates a single Person record",
+      "transitionType" : {
+        "safe" : false,
+        "idempotent" : true,
+        "reversible" : true
+      },
+      "inputs" : {
+        "required" : ["id"],
+        "optional" : ["givenName","familyName", "email", "telephone", "status"]
+      },
+      "output" : {
+        "type" : "person",
+        "returns" : "object"
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    },
+    "status" : {
+      "description" : "Updates the status of a single Person record",
+      "transitionType" : {
+        "safe" : false,
+        "idempotent" : true,
+        "reversible" : true
+      },
+      "inputs" : {
+        "required" : ["id","status"],
+        "optional" : []
+      },
+      "output" : {
+        "type" : "person",
+        "returns" : "object"
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    },
+    "delete" : {
+      "description" : "Deletes a single Person record",
+      "transitionType" : {
+        "safe" : false,
+        "idempotent" : true,
+        "reversible" : true
+      },
+      "inputs" : {
+        "required" : ["id"],
+        "optional" : []
+      },
+      "output" : {
+        "type" : "null",
+        "returns" : "none",
+        "statusCode" : 204
+      },
+      "errors" : [],
+      "authorization" : {
+        "roles" : []
+      }
+    }
+  }
+}
+
