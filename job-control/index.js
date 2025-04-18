@@ -48,6 +48,10 @@ const resolveInput = async (input, stateURL) => {
 app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
+
+  log("body", {body:req.body}, "info")
+  log("job", {job:job}, "info");
+
   // TODO: merge job.sharedState into sharedStateURL via PATCH when available
   if (job.sharedState && job.sharedStateURL) {
     log('shared-state-inline-detected', { jobId }, 'debug');
@@ -62,6 +66,8 @@ app.post('/run-job', async (req, res) => {
       log('shared-state-merge-failed', { error: err.message }, 'warn');
     }
   }
+  
+  log("job", {job:job}, "info");
   
   const stateURL = job.sharedStateURL;
   const revertStack = [];

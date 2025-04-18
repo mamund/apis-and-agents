@@ -4,27 +4,7 @@
   "description": "run through person commands",
   "steps": [
     {
-      "enabled": false,
-      "name": "read",
-      "tasks": [
-        {
-          "tag": "person",
-          "service": "person",
-          "input": {
-            "command": "read",
-            "resource": "person",
-            "id": "q1w2e3r4"
-          },
-          "storeResultAt": [
-            {
-              "targetPath": "/results/read"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "enabled": false,
+      "enabled": true,
       "name": "list",
       "tasks": [
         {
@@ -36,7 +16,39 @@
           },
           "storeResultAt": [
             {
-              "targetPath": "/results/list"
+              "targetPath": "/state/personList"
+            }
+          ]
+        },
+        {
+          "enabled": true,
+          "tag": "person",
+          "service": "person",
+          "input": {
+            "command": "status",
+            "resource": "person",
+            "id": "q1w2e3r4",
+            "payload": {
+              "status": "active"
+            }
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/state/personStatus"
+            }
+          ]
+        },
+        {
+          "tag": "person",
+          "service": "person",
+          "input": {
+            "command": "read",
+            "resource": "person",
+            "id": "q1w2e3r4"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/state/personRead"
             }
           ]
         }

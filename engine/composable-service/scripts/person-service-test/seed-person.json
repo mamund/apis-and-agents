@@ -1,9 +1,11 @@
 {
   "id": "q1w2e3r4",
-  "pid" : "q1w2e3r4",
-  "email": "alice@example.com",
-  "givenName": "Alice",
-  "familyName": "Wonderland",
-  "telephone": "555-5555",
-  "status": "pending"
+  "personData" : {
+    "id" : "q1w2e3r4",
+    "email": "alice@example.com",
+    "givenName": "Alice",
+    "familyName": "Wonderland",
+    "telephone": "555-5555",
+    "status": "pending"
+  }
 }

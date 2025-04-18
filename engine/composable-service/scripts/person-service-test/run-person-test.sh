@@ -1,5 +1,7 @@
 #!/bin/bash
 
+clear
+
 # 1. Create the shared-state document
 curl -s -X POST http://localhost:4500/state \
   -H "Content-Type: application/json" \
@@ -15,12 +17,12 @@ echo "Created shared state: $STATE_URL"
 # 2. Replace sharedStateURL in job-control file
 jq --arg url "$STATE_URL" '.sharedStateURL = $url' job-person-happy.template.json > job-person-happy.json
 
-cat job-person-happy.json
+# cat job-person-happy.json
 
 # 3. Execute the job
-curl -s -X POST http://localhost:4600/execute \
+curl -X POST http://localhost:4700/run-job \
  -H "Content-Type: application/json" \
- -d @job-person-happy.json | jq
+ -d @job-person-happy.json 
 
 # 4. Check final shared-state document
 curl -s "$STATE_URL" | jq
