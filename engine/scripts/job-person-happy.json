@@ -30,7 +30,8 @@
             "id": "q1w2e3r4",
             "payload": {
               "status": {
-                "$fromState": "/personData/status"
+                "$fromState": "/personData/status",
+                "default": "active"
               }
             }
           },

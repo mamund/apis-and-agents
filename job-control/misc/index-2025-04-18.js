@@ -20,10 +20,11 @@ const resolvePointer = (obj, pointer) => {
     .reduce((acc, key) => acc && acc[key], obj);
 };
 
-// Utility: resolve input from shared state
 const resolveInput = async (input, stateURL) => {
   if (!stateURL) return input;
 
+  log("input", {input:input},"info");
+  
   let state = {};
   try {
     const response = await axios.get(stateURL);
@@ -36,28 +37,34 @@ const resolveInput = async (input, stateURL) => {
     if (Array.isArray(obj)) {
       return obj.map(resolveFromState);
     }
+    
 
     if (typeof obj === 'object' && obj !== null) {
-      if (typeof obj.$fromState === 'string') {
-        const resolved = resolvePointer(state, obj.$fromState);
-        if (resolved !== undefined) return resolved;
-        if ('default' in obj) {
-          log('fromState-missing-default-used', {
-            path: obj.$fromState,
-            default: obj.default
-          }, 'debug');
-          return obj.default;
-        }
-        
-        log('fromState-missing-no-default', {path: obj.$fromState}, 'warn');
-        return undefined;
+      /*
+      if (
+        Object.keys(obj).length === 1 &&
+        typeof obj.$fromState === 'string'
+      ) {
+        return resolvePointer(state, obj.$fromState);
       }
-
+      
       const resolved = {};
       for (const [key, value] of Object.entries(obj)) {
         resolved[key] = resolveFromState(value);
       }
       return resolved;
+      */
+            
+      if (typeof obj.$fromState === 'string') {
+        const resolved = resolvePointer(state, obj.$fromState);
+        if (resolved !== undefined) {
+          return resolved;
+        }
+        if ('default' in obj) {
+          return obj.default;
+        }
+        return undefined;
+      }      
     }
 
     return obj;
@@ -65,6 +72,32 @@ const resolveInput = async (input, stateURL) => {
 
   return resolveFromState(input);
 };
+
+// Utility: resolve input from shared state
+/*
+const resolveInput = async (input, stateURL) => {
+  if (!stateURL) return input;
+  const resolved = {};
+  let state = {};
+
+  try {
+    const response = await axios.get(stateURL);
+    state = response.data;
+  } catch (err) {
+    log('shared-state-load-failed', { error: err.message }, 'warn');
+  }
+
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof value === 'object' && value.$fromState) {
+      resolved[key] = resolvePointer(state, value.$fromState);
+    } else {
+      resolved[key] = value;
+    }
+  }
+
+  return resolved;
+};
+*/
 
 // POST /run-job
 app.post('/run-job', async (req, res) => {

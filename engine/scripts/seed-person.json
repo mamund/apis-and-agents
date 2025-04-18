@@ -5,7 +5,6 @@
     "email": "alice@example.com",
     "givenName": "Alice",
     "familyName": "Wonderland",
-    "telephone": "555-5555",
-    "status": "active"
+    "telephone": "555-5555"
   }
 }

@@ -41,6 +41,7 @@ const resolveInput = async (input, stateURL) => {
       if (typeof obj.$fromState === 'string') {
         const resolved = resolvePointer(state, obj.$fromState);
         if (resolved !== undefined) return resolved;
+
         if ('default' in obj) {
           log('fromState-missing-default-used', {
             path: obj.$fromState,
@@ -48,8 +49,11 @@ const resolveInput = async (input, stateURL) => {
           }, 'debug');
           return obj.default;
         }
-        
-        log('fromState-missing-no-default', {path: obj.$fromState}, 'warn');
+
+        log('fromState-missing-no-default', {
+          path: obj.$fromState
+        }, 'warn');
+
         return undefined;
       }
 
