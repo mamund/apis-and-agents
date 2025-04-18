@@ -1,0 +1,9 @@
+{
+  "emit": "out.json",
+  "keep": true,
+  "emit": true,
+  "overwrite": true,
+  "verbose": true,
+  "dryRun": false,
+  "state": "jobs/job-read-initial.json"
+}

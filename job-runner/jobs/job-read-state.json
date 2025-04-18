@@ -1,0 +1,22 @@
+{
+  "name" : "testing shared state",
+  "steps": [
+    {
+      "name" : "testing shared state",
+      "tasks": [
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": {"$fromState" : "/message"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/results/uppercase"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

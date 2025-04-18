@@ -1,0 +1,22 @@
+{
+  "sharedState": {
+    "initialMessage": "hello world"
+  },
+  "steps": [
+    {
+      "tasks": [
+        {
+          "tag": "timestamp",
+          "input": {}
+        },
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": "hello world"
+          }
+        }
+      ]
+    }
+  ]
+}
+

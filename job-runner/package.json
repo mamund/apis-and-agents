@@ -1,0 +1,27 @@
+{
+  "name": "job-runner",
+  "version": "0.1.0",
+  "description": "CLI tool for submitting and managing job-control documents with shared-state integration.",
+  "bin": {
+    "job-runner": "./index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "cli",
+    "job-control",
+    "shared-state",
+    "api-orchestration",
+    "composable-services"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "commander": "^11.0.0",
+    "uuid": "^9.0.0"
+  }
+}
+
