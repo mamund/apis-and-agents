@@ -1,31 +1,57 @@
-# Job-Control Service Guide
+# Job-Control Developer Guide
+
+This guide is for developers who want to **use** the job-control service to coordinate services through composable, declarative jobs.
 
 ## Overview
 
-The **Job-Control Service** is the orchestrator in the composable service platform. It executes declarative jobs defined in structured JSON, coordinating steps, resolving shared state references, and managing service interactions.
+The job-control service executes structured jobs composed of sequential `steps`, each containing one or more `tasks`. It manages:
+- Argument resolution via shared state
+- Task dispatching via service discovery
+- Result storage and state updates
 
-Each job consists of one or more sequential `steps`, each of which may contain multiple `tasks` that run in parallel.
+## Getting Started
 
----
+### 1. Create a Shared State Document
 
-## Job Structure
+Use the shared-state service:
+```bash
+curl -X POST http://localhost:4500/state -d '{ "message": "hello" }' -H "Content-Type: application/json"
+```
+
+Save the returned `id` and construct the sharedStateURL like:
+```
+http://localhost:4500/state/<your-id>
+```
+
+### 2. Submit a Job
+
+Send a job-control JSON file to:
+```bash
+curl -X POST http://localhost:4700/run-job -d @job.json -H "Content-Type: application/json"
+```
+
+## Job File Structure
 
 ```json
 {
-  "name": "my-job",
-  "sharedStateURL": "http://localhost:4500/state/job-123",
+  "sharedStateURL": "http://localhost:4500/state/<id>",
   "steps": [
     {
-      "name": "step-one",
+      "enabled": true,
+      "name": "step-name",
       "tasks": [
         {
-          "tag": "todo",
+          "tag": "service-tag",
           "input": {
-            "command": "create",
-            "resource": "todo",
-            "id": "job-001"
+            "argName": { "$fromState": "/some/path", "default": "fallback" }
           },
-          "storeResultAt": "/state/todoCreated"
+          "storeResultAt": [
+            {
+              "targetPath": "/results/step",
+              "sourcePath": "data/value",
+              "onlyOnStatus": [200]
+            }
+          ]
         }
       ]
     }
@@ -33,86 +59,39 @@ Each job consists of one or more sequential `steps`, each of which may contain m
 }
 ```
 
----
-
 ## Key Features
 
-### ✅ Steps and Tasks
+### `$fromState` Resolution
 
-- **Steps** are ordered and run sequentially
-- **Tasks** within a step run in parallel
-- You can disable a step or task using `"enabled": false`
-
----
-
-### 🔁 `$fromState` (Input Resolution)
-
-Use `$fromState` to pull values from shared state at runtime.
-
+Dynamically pulls values from the shared-state document:
 ```json
 "input": {
-  "id": { "$fromState": "/todoCreated/id" }
+  "status": { "$fromState": "/user/status", "default": "new" }
 }
 ```
 
----
+Supports:
+- Nested structures
+- Arrays
+- Default values (new)
+- Logs fallback usage
 
-### 📥 `sharedState` Inline Merge
+### Task Flags
 
-You can initialize shared state directly in a job document:
+- `enabled: false` — disables task (or entire step)
+- `tag` — used to find service via discovery
 
-```json
-"sharedState": {
-  "user": { "id": "u001", "role": "editor" }
-}
-```
+### Result Wiring
 
-This is merged into `sharedStateURL` using a `PATCH` `{ op: "merge" }` call at job start.
-
----
-
-### 🧾 `storeResultAt` (Result Mapping)
-
-Store task results in shared state:
-
-```json
-"storeResultAt": [
-  {
-    "targetPath": "/todo/output",
-    "sourcePath": "/data/result",
-    "onlyOnStatus": [200]
-  }
-]
-```
-
-- Supports single string, object, or array of result instructions
-- JSON Pointer `targetPath` format is required
+Use `storeResultAt` to persist response values:
+- `targetPath`: where to store in shared-state
+- `sourcePath`: what part of result to use
+- `onlyOnStatus`: restrict when to store (e.g. `200` only)
 
 ---
 
-### ⚠️ Revert-on-Failure
+## Debugging Tips
 
-If a task fails:
-- All previous steps are reverted in reverse order
-- Each task must support a `revert` action for full rollback
-
----
-
-## Execution Endpoint
-
-### `POST /run-job`
-
-Run a job document.
-
-- **Input:** Valid job definition
-- **Output:** `{ jobId, status | error }`
-
----
-
-## Developer Notes
-
-- Expects `discovery` and `shared-state` services to be running
-- Unknown `mode` values are skipped (noop)
-- All interactions are logged with job IDs
-- Compatible with services exposing hypermedia-style `/forms` definitions
-
+- Use structured logs (`job-failed`, `task-skipped`, etc.)
+- Defaults are logged when used
+- Unknown or missing tags/services are gracefully skipped
