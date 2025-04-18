@@ -24,7 +24,8 @@ POST http://localhost:4000/register
   "serviceURL": "http://localhost:4001",
   "tags": ["todo", "create", "read", "update", "delete", "filter"],
   "semanticProfile": "urn:example:todo",
-  "mediaTypes": ["application/json"]
+  "mediaTypes": ["application/json"],
+  "pingURL": "http://localhost:4001/ping"
 }
 ```
 
@@ -37,6 +38,7 @@ POST http://localhost:4000/register
 | `tags`            | ✅       | Keywords or supported command verbs |
 | `semanticProfile` | ✅       | A URI/URN describing the affordance model or domain |
 | `mediaTypes`      | ✅       | List of supported content types (e.g., `application/json`) |
+| `pingURL`         | ⬛       | Optional health check URL; used by DISCO to verify availability |
 
 ---
 
@@ -45,6 +47,7 @@ POST http://localhost:4000/register
 - Services must register themselves at startup.
 - If DISCO is temporarily unavailable, services should retry after a delay.
 - Each registration should be idempotent (same service should not create duplicates).
+- If `pingURL` is provided, DISCO will periodically check this URL to ensure the service is alive. Services that fail repeated pings may be unregistered automatically.
 
 ---
 
@@ -58,7 +61,8 @@ const serviceInfo = {
   serviceURL: `http://localhost:4001`,
   tags: ['todo', 'create', 'read', 'update', 'delete', 'filter'],
   semanticProfile: 'urn:example:todo',
-  mediaTypes: ['application/json']
+  mediaTypes: ['application/json'],
+  pingURL: 'http://localhost:4001/ping'
 };
 
 const registerService = async () => {
@@ -83,6 +87,5 @@ You can verify registration by checking console logs of both the service and the
 
 In later phases, DISCO-compliant services may support:
 - `/forms` for introspection
-- Health check URLs
 - Deregistration on shutdown
 - Semantic profile negotiation

@@ -1,7 +1,9 @@
 {
+  "name" : "simple mashup example",
   "sharedStateURL" : "http://localhost:4500/state/628bd965-fc5e-43cf-8e8d-bea39154d0fd",
   "steps": [
     {
+      "name" : "uppercase and timestamp",
       "tasks": [
         {
           "tag": "uppercase",

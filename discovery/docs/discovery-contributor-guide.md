@@ -18,8 +18,8 @@ The Discovery Service allows composable services to:
 
 ## Internal Structure
 
-- Registered services are stored in-memory (can be made persistent later)
-- A background timer pings services and evicts unreachable ones
+- The list of registered services are stored in-memory (can be made persistent later)
+- For services who supplied a ping for healthchecks, a background timer pings services and evicts unreachable ones
 
 ## Contributor Notes
 
