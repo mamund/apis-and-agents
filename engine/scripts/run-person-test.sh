@@ -2,8 +2,11 @@
 
 clear
 
+JOB_CONTROL=4700
+SHARED_STATE=4500
+
 # 1. Create the shared-state document
-curl -s -X POST http://localhost:4500/state \
+curl -s -X POST http://localhost:$SHARED_STATE/state \
   -H "Content-Type: application/json" \
   -d @seed-person.json \
   -o response.json
@@ -20,7 +23,7 @@ jq --arg url "$STATE_URL" '.sharedStateURL = $url' job-person-happy.template.jso
 # cat job-person-happy.json
 
 # 3. Execute the job
-curl -X POST http://localhost:4700/run-job \
+curl -X POST http://localhost:$JOB_CONTROL/run-job \
  -H "Content-Type: application/json" \
  -d @job-person-happy.json 
 
