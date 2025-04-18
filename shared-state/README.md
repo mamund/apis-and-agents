@@ -1,15 +1,15 @@
 # Shared-State Service
 
-The **Shared-State Service** provides a simple, in-memory key-value store that can be dynamically updated and queried by job-control agents and other services. It supports JSON Pointer-based mutations and shallow merges, making it suitable for lightweight orchestration tasks.
+The **Shared-State Service** provides a simple, transient key-value store for orchestrated service environments. It supports lightweight mutations using JSON Pointer paths and shallow object merges — ideal for coordinating state across job-control workflows.
 
 ---
 
 ## 📄 Description
 
-- Provides create, read, update, delete (CRUD) for shared state documents
-- Supports `PATCH` operations using either `add` or `merge`
-- Designed to work with job-control workflows
-- Stores data in memory (non-persistent)
+- Stores structured data in memory (non-persistent)
+- Each document is addressable by a unique ID
+- Designed for use with job-control and other composable services
+- Supports `PATCH` operations using `"add"` or `"merge"`
 
 ---
 
@@ -30,52 +30,50 @@ PORT=4500 node index.js
 
 Create a new shared state document.
 
-- **Request Body:**
-  ```json
-  {
-    "id": "optional-id",
-    "key": "value"
-  }
-  ```
+#### Request Body
+```json
+{
+  "id": "optional-id",
+  "message": "hello"
+}
+```
 
-- **Response:**
-  ```json
-  {
-    "stateURL": "http://localhost:4500/state/{id}"
-  }
-  ```
+- If `id` is omitted, one will be generated automatically.
+
+#### Response
+```json
+{
+  "stateURL": "http://localhost:4500/state/{id}"
+}
+```
+
+#### Example
+```bash
+curl -X POST http://localhost:4500/state \
+  -H "Content-Type: application/json" \
+  -d '{ "message": "hello" }'
+```
 
 ---
 
 ### `GET /state/:id`
 
-Retrieve a state document.
+Retrieve a state document by ID.
 
-- **Response:**
-  ```json
-  {
-    "key": "value"
-  }
-  ```
-
----
-
-### `POST /state/:id`
-
-Merge new values into an existing document.
-
-- **Effect:** Shallow object merge
+#### Response
+```json
+{
+  "message": "hello"
+}
+```
 
 ---
 
 ### `PATCH /state/:id`
 
-Perform a fine-grained mutation using one of two operations:
+Apply a targeted mutation using `op: "add"` or `op: "merge"`.
 
-#### `op: "add"`
-
-- Use a JSON Pointer path to write to a specific location.
-
+#### Add (JSON Pointer path)
 ```json
 {
   "op": "add",
@@ -84,10 +82,7 @@ Perform a fine-grained mutation using one of two operations:
 }
 ```
 
-#### `op: "merge"`
-
-- Merge keys into the top-level object.
-
+#### Merge (top-level keys)
 ```json
 {
   "op": "merge",
@@ -99,9 +94,17 @@ Perform a fine-grained mutation using one of two operations:
 
 ---
 
+### `POST /state/:id`
+
+Shallow merge values into the state document.
+
+- Equivalent to `PATCH` with `op: "merge"` (legacy fallback)
+
+---
+
 ### `DELETE /state/:id`
 
-Delete the state document under the given ID.
+Delete the document with the specified ID.
 
 ---
 
@@ -120,6 +123,7 @@ Returns:
 
 ## 🧰 Development Notes
 
-- All state is stored in memory
-- JSON Pointer paths must start with `/`
-- The `merge` operation is a shallow merge (top-level keys only)
+- State documents are ephemeral and reset on restart
+- JSON Pointer paths used in `add` must start with `/`
+- `merge` only affects top-level keys — it is not deep
+- Validate that `op` is either `"add"` or `"merge"`

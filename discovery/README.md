@@ -10,8 +10,8 @@ It acts as the central index for hypermedia-oriented service orchestration.
 
 - Registers services at runtime
 - Responds to lookup queries using a `tag` system
-- Designed for use with the job-control and shared-state services
-- Ephemeral (no database — memory only)
+- Designed for use with other platform services like job-control, shared-state, and engine service
+- Ephemeral (in-memory only; no persistent database)
 
 ---
 
@@ -39,15 +39,30 @@ Registers a service.
   "tags": ["todo", "task"],
   "semanticProfile": "urn:example:todo",
   "mediaTypes": ["application/json"],
-  "pingUrl": "http://localhost:5000/ping"
+  "pingURL": "http://localhost:5000/ping"
 }
 ```
+
+- `pingURL`, `semanticProfile`, and `mediaTypes` are optional but strongly encouraged
+- Re-registering with the same `serviceURL` updates the existing entry
 
 #### Response
 ```json
 {
   "registryID": "generated-uuid"
 }
+```
+
+#### Example with `curl`
+```bash
+curl -X POST http://localhost:4000/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serviceName": "example",
+    "serviceURL": "http://localhost:6000",
+    "tags": ["example"],
+    "pingURL": "http://localhost:6000/ping"
+  }'
 ```
 
 ---
@@ -67,7 +82,6 @@ Finds services registered under a given tag.
 ```
 
 ---
----
 
 ### `POST /unregister`
 Removes a previously registered service from the registry.
@@ -86,21 +100,27 @@ Removes a previously registered service from the registry.
 }
 ```
 
-- Matching is typically based on `serviceURL`
+- Matching is based on `serviceURL`
 - If the service was not found, the operation is a no-op
 
+---
 
 ## 🧪 Health Check
 
 ```http
 GET /ping
 ```
-Responds with `{ "status": "ok" }`
+
+Responds with:
+
+```json
+{ "status": "ok" }
+```
 
 ---
 
 ## 🧰 Development Notes
 
 - Service registry is in-memory and resets on restart
-- Use `/ping` endpoints to ensure services are alive before registering
-- 
+- Use `pingURL` endpoints to ensure services remain healthy
+- Consider re-registering periodically if running in volatile environments
