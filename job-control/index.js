@@ -20,7 +20,47 @@ const resolvePointer = (obj, pointer) => {
     .reduce((acc, key) => acc && acc[key], obj);
 };
 
+const resolveInput = async (input, stateURL) => {
+  if (!stateURL) return input;
+
+  log("input", {input:input},"info");
+  
+  let state = {};
+  try {
+    const response = await axios.get(stateURL);
+    state = response.data;
+  } catch (err) {
+    log('shared-state-load-failed', { error: err.message }, 'warn');
+  }
+
+  const resolveFromState = (obj) => {
+    if (Array.isArray(obj)) {
+      return obj.map(resolveFromState);
+    }
+
+    if (typeof obj === 'object' && obj !== null) {
+      if (
+        Object.keys(obj).length === 1 &&
+        typeof obj.$fromState === 'string'
+      ) {
+        return resolvePointer(state, obj.$fromState);
+      }
+
+      const resolved = {};
+      for (const [key, value] of Object.entries(obj)) {
+        resolved[key] = resolveFromState(value);
+      }
+      return resolved;
+    }
+
+    return obj;
+  };
+
+  return resolveFromState(input);
+};
+
 // Utility: resolve input from shared state
+/*
 const resolveInput = async (input, stateURL) => {
   if (!stateURL) return input;
   const resolved = {};
@@ -43,14 +83,12 @@ const resolveInput = async (input, stateURL) => {
 
   return resolved;
 };
+*/
 
 // POST /run-job
 app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
-
-  log("body", {body:req.body}, "info")
-  log("job", {job:job}, "info");
 
   // TODO: merge job.sharedState into sharedStateURL via PATCH when available
   if (job.sharedState && job.sharedStateURL) {
@@ -66,8 +104,6 @@ app.post('/run-job', async (req, res) => {
       log('shared-state-merge-failed', { error: err.message }, 'warn');
     }
   }
-  
-  log("job", {job:job}, "info");
   
   const stateURL = job.sharedStateURL;
   const revertStack = [];

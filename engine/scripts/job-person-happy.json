@@ -29,7 +29,9 @@
             "resource": "person",
             "id": "q1w2e3r4",
             "payload": {
-              "status": "active"
+              "status": {
+                "$fromState": "/personData/status"
+              }
             }
           },
           "storeResultAt": [
