@@ -1,8 +1,0 @@
-{
-  "message": "hello, dynamic cli world!",
-  "results": {
-    "uppercase": {
-      "result": "HELLO, DYNAMIC CLI WORLD!"
-    }
-  }
-}
