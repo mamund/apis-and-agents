@@ -1,0 +1,9 @@
+{
+  "id" : "628bd965-fc5e-43cf-8e8d-bea39154d0fd",
+  "todoData" : {
+    "id" : "job-test-002",
+    "title" : "From job-runner",
+    "done" : false,
+    "redone" : true
+  }
+}

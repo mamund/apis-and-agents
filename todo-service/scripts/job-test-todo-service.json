@@ -9,26 +9,13 @@
       "enabled": true,
       "tasks": [
         {
-          "enabled" : false,
-          "tag": "uppercase",
-          "description" : "run a quick check on the uppercase service",
-          "input": {
-            "input": {"$fromState" : "message"}
-          },
-          "storeResultAt": [
-            {
-              "targetPath": "/results/full"
-            }
-          ]
-        },
-        {
           "tag": "todo",
           "serviceName" : "todo-service",
           "enabled" : true,
           "input": {
             "command": "delete",
             "resource": "todo",
-            "id": "job-test-001"
+            "id": {"$fromState" : "/todoData/id"}
           },
           "storeResultAt": [
             {
@@ -48,10 +35,10 @@
           "input": {
             "command": "create",
             "resource": "todo",
-            "id": "job-test-001",
+            "id": {"$fromState" : "/todoData/id"},
             "payload": {
-              "title": "From Job-Control",
-              "done": false
+              "title": {"$fromState" : "/todoData/title"},
+              "done" : {"$fromState" : "/todoData/done"}
             }
           },
           "storeResultAt": [
@@ -64,7 +51,7 @@
     },
     {
       "name": "update-todo",
-      "enabled": true,
+      "enabled":true,
       "tasks": [
         {
           "tag": "todo",
@@ -72,9 +59,9 @@
           "input": {
             "command": "update",
             "resource": "todo",
-            "id": "job-test-001",
+            "id": {"$fromState" : "/todoData/id"},
             "payload": {
-              "done": true
+              "done": {"$fromState" : "/todoData/redone"}
             }
           },
           "storeResultAt": [
@@ -95,32 +82,11 @@
           "input": {
             "command": "read",
             "resource": "todo",
-            "id": "job-test-001"
+            "id": {"$fromState" : "/todoData/id"}
           },
           "storeResultAt": [
             {
               "targetPath": "/state/todoRead"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "todo-revert",
-      "enabled": true,
-      "mode": "revert",
-      "tasks": [
-        {
-         "tag": "todo",
-         "serviceName": "todo-service",
-          "input": {
-            "command": "create",
-            "resource": "todo",
-            "id": "job-test-001"
-          },
-          "storeResultAt": [
-            {
-              "targetPath": "/state/todoRevert"
             }
           ]
         }

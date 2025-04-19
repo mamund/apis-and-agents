@@ -8,8 +8,27 @@
         {
           "tag": "uppercase",
           "input": {
-            "input": "hello world"
-          }
+            "input": {"$fromState" : "/initialMessage"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/state/initial"
+            }
+          ]
+        },
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": {"$fromState" : "/message"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/state/first"
+            },
+            {
+              "targetPath": "/state/second"
+            }
+          ]
         }
       ]
     }

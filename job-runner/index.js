@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // job-runner CLI - Phase 1
 
 import fs from 'fs';
