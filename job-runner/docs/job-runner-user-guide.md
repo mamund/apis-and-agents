@@ -8,13 +8,13 @@ The `job-runner` CLI allows you to submit and manage job-control documents with 
 
 ### Run Locally
 ```bash
-node index.js run job.json
+node index.js job.json
 ```
 
 ### Register Globally (for CLI use)
 ```bash
 npm link
-job-runner run job.json
+job-runner job.json
 ```
 
 ---
@@ -23,12 +23,12 @@ job-runner run job.json
 
 The main command:
 ```bash
-job-runner run <jobFile> [options]
+job-runner <jobFile> [options]
 ```
 
 ### Example:
 ```bash
-job-runner run job.json \
+job-runner job.json \
   --state shared.json \
   --emit final.json \
   --overwrite
