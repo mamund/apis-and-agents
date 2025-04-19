@@ -1,113 +1,65 @@
-# Composable API Platform
+# Composable Services Platform
 
-A lightweight, modular platform for building and orchestrating composable services and agent-ready APIs.
+This repository contains a modular system for defining, discovering, and orchestrating composable services using a dynamic job-control model. It is designed to support flexible, runtime-bound service interactions across a network of loosely coupled Node.js services.
 
-This platform provides the core building blocks for dynamic service discovery, transient shared state, declarative job execution, and plug-and-play service behaviors — ideal for evolving architectures and experimental agent ecosystems.
+## Core Components
 
----
+### `discovery/`
+A lightweight in-memory discovery service that allows services to register themselves, provide metadata, and respond to health checks.  
+**Key endpoints:** `/register`, `/unregister`, `/ping`, `/services`
 
-## 🧱 Platform Overview
+### `shared-state/`
+A shared-state document store for holding structured state across job runs.  
+**Key endpoints:** `POST /state`, `GET /state/:id`, `PATCH /state/:id`, `DELETE /state/:id`
 
-This platform is made up of four cooperating services:
+### `job-control/`
+Orchestrates multi-step jobs with sequential steps and parallel tasks. Each task is a call to a registered service, and results can be stored in shared-state.  
+**Key features:**
+- Declarative job definitions
+- `$fromState` syntax for dynamic input resolution
+- Result storage via `storeResultAt`
+- Reversible execution model
+- Support for step/task-level disabling (`enabled: false`)
 
-| Component         | Description |
-|------------------|-------------|
-| **Discovery**     | Registers and locates services via tag-based lookup |
-| **Shared-State**  | Manages transient, structured state across job steps |
-| **Job-Control**   | Executes structured, reversible, multi-step jobs |
-| **Engine Service**| Generic runtime for executing composable `design.json`-based services |
+### `engine-service/`
+A generic runtime service engine that reads a `design.json` file to expose commands dynamically using a three-endpoint pattern:  
+`/execute`, `/repeat`, `/revert`.  
+Supports developer-defined commands and default behavior with support for discovery registration.
 
----
+## Tooling
 
-## 🚀 Quick Start
+### `job-runner/`
+A command-line utility to simplify job execution against the platform.  
+**Features:**
+- Creates shared state documents
+- Submits job-control files
+- Injects values from a JSON file
+- Watches job progress via polling (`/jobs/:id`)
+- Emits or deletes shared state results
+- Reads local `.job-runner.json` for defaults
 
-1. **Start Discovery**
 ```bash
-npm run start:discovery
+npx job-runner run my-job.json --emit final.json --cleanup
 ```
 
-2. **Start Shared-State**
-```bash
-npm run start:shared-state
-```
+## Getting Started
 
-3. **Start Job-Control**
-```bash
-npm run start:job-control
-```
+1. Start the platform services:
+   ```bash
+   ./scripts/start-all.sh
+   ```
 
-4. **Run a Composable Service**
-```bash
-npm run start:engine -- --design=./examples/design.json
-```
+2. Register your composable services (e.g., service-a, service-b)
 
-5. **Submit a Job**
-```bash
-curl -X POST http://localhost:4700/run-job -d @./examples/job.json -H "Content-Type: application/json"
-```
+3. Use `job-runner` to submit and monitor jobs:
+   ```bash
+   npx job-runner examples/sample-job.json --emit
+   ```
 
----
+## Future Directions
 
-## 📦 Project Structure
+- Affordance-aware ALPS integration
+- Persistent job replay & audit logs
+- Remote storage for shared-state
+- Runtime-discoverable service contracts
 
-```
-/discovery         # Service registry
-/shared-state      # Transient shared state store
-/job-control       # Job runner with task wiring and reversal
-/engine            # Generic composable service runtime
-/examples          # Sample jobs and service definitions
-/docs              # Developer and contributor guides
-```
-
----
-
-## 🧑‍💻 Developer Resources
-
-- 📘 [Composable Platform Developer Guide](docs/composable-platform-developer-guide.md)
-- 📗 [design.json Developer Guide](docs/design-json-developer-guide.md)
-- 📕 [Job-Control Developer Guide](docs/job-control-developer-guide.md)
-- 🧾 [Shared-State Developer Guide](docs/shared-state-developer-guide.md)
-- 🧭 [Discovery Developer Guide](docs/discovery-developer-guide.md)
-
-> Contributor guides are also available for those extending the platform core.
-
----
-
-## 📌 Feature Roadmap
-
-See [Job-Control Feature Roadmap](#🧭-job-control-feature-roadmap) below.
-
----
-
-## 🧭 Job-Control Feature Roadmap
-
-### ✅ CORE (Done)
-- [x] Sequential job execution with parallel task steps  
-- [x] Service discovery via tag + `/forms`  
-- [x] Revert stack for failure rollback  
-- [x] Shared state via `sharedStateURL`  
-- [x] `storeResultAt`: full result, partial slices, `onlyOnStatus`, and `_raw` fallback  
-
-### 🚀 PHASE 1: Empower Job Definitions
-- Transform support
-- Conditional execution
-- Retries and backoff
-
-### 🔧 PHASE 2: Resilience + Observability
-- Timeouts, tracing, lifecycle webhooks
-
-### 🧠 PHASE 3: Smarter Control Flow
-- Mapping, looping, concurrency limits
-
-### 🔒 PHASE 4: Security + Access
-- Auth injection
-- Role-based task filtering
-
----
-
-## 🤖 Bonus Ecosystem Ideas
-
-- Template registry for reusable jobs
-- Live shared-state viewer
-- HATEOAS-style agent forms
-- Dry-run preview mode
