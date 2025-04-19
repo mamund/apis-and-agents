@@ -22,13 +22,13 @@ Ideal for orchestrating tasks across distributed services in environments that s
 ### Local
 ```bash
 npm install
-node index.js run job.json
+node index.js job.json
 ```
 
 ### Global (for CLI-style usage)
 ```bash
 npm link
-job-runner run job.json
+job-runner job.json
 ```
 
 ---
@@ -36,7 +36,7 @@ job-runner run job.json
 ## Basic Usage
 
 ```bash
-job-runner run job.json \
+job-runner job.json \
   --state shared.json \
   --emit final-state.json \
   --overwrite
