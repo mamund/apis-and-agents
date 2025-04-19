@@ -33,13 +33,13 @@ job-runner/
 
 ### Run locally
 ```bash
-node index.js run job.json --verbose
+node index.js job.json --verbose
 ```
 
 ### Link globally
 ```bash
 npm link
-job-runner run job.json
+job-runner job.json
 ```
 
 ### Test config loading
