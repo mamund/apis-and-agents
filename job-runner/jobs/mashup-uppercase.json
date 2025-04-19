@@ -1,0 +1,23 @@
+{
+  "name" : "testing save/use stateURLs",
+  "sharedStateURL" : "http://localhost:4500/state/628bd965-fc5e-43cf-8e8d-bea39154d0fd",
+  "steps": [
+    {
+      "name" : "uppercase",
+      "tasks": [
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": {"$fromState" : "/message"}
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/output/text"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
