@@ -282,23 +282,6 @@ app.get('/filter', (req, res) => {
 });
 
 
-
-// GET /jobs/:jobId — get one job
-app.get('/jobs/:jobId', (req, res) => {
-  const job = jobStore.get(req.params.jobId);
-  if (!job) {
-    return res.status(404).json({ error: 'Job not found' });
-  }
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  res.json({
-    ...job,
-    rel: 'jobs',
-    href: `${baseUrl}/jobs`
-  });
-});
-//});
-
-
 app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   res.status(200).json([
@@ -314,21 +297,21 @@ app.get('/forms', (req, res) => {
     method: 'GET',
     href: `${baseUrl}/jobs`,
     input: 'none',
-    output: '[ { id, status, name?, createdAt, completedAt?, steps, rel: "job", href } ]'
+    output: '[ { id, status, name?, createdAt, completedAt?, steps } ]'
   },
   {
     rel: 'get-job',
     method: 'GET',
     href: `${baseUrl}/jobs/{jobId}`,
     input: '{ jobId }',
-    output: '{ id, status, name?, createdAt, completedAt?, steps, error?, rel: "job", href }'
+    output: '{ id, status, name?, createdAt, completedAt?, steps, error? }'
   },
   {
     rel: 'filter-jobs',
     method: 'GET',
     href: `${baseUrl}/filter`,
     input: '{ name?, status?, createdAt?, completedAt? } (all parameters are substring matches)',
-    output: '[ { id, status, name?, createdAt, completedAt?, steps, rel: "job", href } ]'
+    output: '[ { id, status, name?, createdAt, completedAt?, steps } ]'
   }
 ]);
 });

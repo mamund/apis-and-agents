@@ -22,12 +22,6 @@ app.get('/state/:id', (req, res) => {
   const { id } = req.params;
   const entry = stateStore[id];
   if (!entry) return res.status(404).json({ error: 'not found' });
-  
-  if (req.query.meta !== undefined) {
-    const { createdAt, lastModified } = entry;
-    return res.status(200).json({ id, createdAt, lastModified });
-  }
-
   const state = entry.content;
   log('read-state', { id, result: state });
   res.status(200).json(state);
@@ -170,17 +164,24 @@ app.patch('/state/:id', (req, res) => {
 
 // GET /state — list all shared state documents with metadata
 app.get('/state', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const list = Object.values(stateStore).map(({ id, createdAt, lastModified }) => ({
+  const list = Object.values(stateStore).map(({ id, createdAt, lastModified, content }) => ({
     id,
     createdAt,
     lastModified,
-    rel: 'item',
-    href: `${baseUrl}/state/${id}`
+    content
   }));
   res.json(list);
-
 });
+
+
+// GET /state/:id/meta — show metadata only
+app.get('/state/:id/meta', (req, res) => {
+  const entry = stateStore[req.params.id];
+  if (!entry) return res.status(404).json({ error: 'not found' });
+  const { id, createdAt, lastModified } = entry;
+  res.json({ id, createdAt, lastModified });
+});
+
 
 // Service metadata and health
 app.get('/', (req, res) => {

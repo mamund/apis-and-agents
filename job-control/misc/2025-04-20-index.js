@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const { log } = require('./logger');
-const jobStore = new Map();
 const port = process.env.PORT || 4700;
 const discoveryURL = 'http://localhost:4000/find';
 
@@ -91,15 +90,6 @@ app.post('/run-job', async (req, res) => {
   const revertStack = [];
 
   log('job-start', { jobId });
-
-  const startTime = new Date().toISOString();
-jobStore.set(jobId, {
-  id: jobId,
-  status: 'running',
-  createdAt: startTime,
-  name: job.name || null,
-  steps: job.steps?.length || 0
-});
 
   for (const step of job.steps) {
     const activeTasks = step.tasks.filter(t => t.enabled !== false);
@@ -216,121 +206,26 @@ jobStore.set(jobId, {
         }
       }
 
-      jobStore.set(jobId, {
-        ...jobStore.get(jobId),
-        status: 'failed',
-        error: failed.error,
-        failedTask: failed.task
-      });
-
       return res.status(500).json({ jobId, error: failed });
     }
   }
-
-  const completeTime = new Date().toISOString();
-  jobStore.set(jobId, {
-    ...jobStore.get(jobId),
-    status: 'completed',
-    completedAt: completeTime
-  });
 
   log('job-complete', { jobId });
   res.status(200).json({ jobId, status: 'completed' });
 });
 
 // GET /forms — describe this service's interface
-
-
-// GET /jobs — list all jobs
-app.get('/jobs', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const jobs = Array.from(jobStore.values()).map(job => ({
-    id: job.id,
-    status: job.status,
-    name: job.name,
-    createdAt: job.createdAt,
-    completedAt: job.completedAt || null,
-    steps: job.steps,
-    error: job.error || null,
-    rel: 'job',
-    href: `${baseUrl}/jobs/${job.id}`
-  }));
-  res.json(jobs);
-});
-
-// GET /filter — filter jobs by query (contains match on name, status, createdAt, completedAt)
-app.get('/filter', (req, res) => {
-  const { name, status, createdAt, completedAt } = req.query;
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const jobs = Array.from(jobStore.values()).filter(job => {
-    return (!name || (job.name && job.name.includes(name))) &&
-           (!status || (job.status && job.status.includes(status))) &&
-           (!createdAt || (job.createdAt && job.createdAt.includes(createdAt))) &&
-           (!completedAt || (job.completedAt && job.completedAt.includes(completedAt)));
-  }).map(job => ({
-    id: job.id,
-    status: job.status,
-    name: job.name,
-    createdAt: job.createdAt,
-    completedAt: job.completedAt || null,
-    steps: job.steps,
-    error: job.error || null,
-    rel: 'job',
-    href: `${baseUrl}/jobs/${job.id}`
-  }));
-  res.json(jobs);
-});
-
-
-
-// GET /jobs/:jobId — get one job
-app.get('/jobs/:jobId', (req, res) => {
-  const job = jobStore.get(req.params.jobId);
-  if (!job) {
-    return res.status(404).json({ error: 'Job not found' });
-  }
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  res.json({
-    ...job,
-    rel: 'jobs',
-    href: `${baseUrl}/jobs`
-  });
-});
-//});
-
-
 app.get('/forms', (req, res) => {
   const baseUrl = `${req.protocol}://${req.get('host')}`;
   res.status(200).json([
-  {
-    rel: 'run-job',
-    method: 'POST',
-    href: `${baseUrl}/run-job`,
-    input: '{ sharedStateURL?, steps: [ { tasks: [ { tag, input } ] } ] }',
-    output: '{ jobId, status | error }'
-  },
-  {
-    rel: 'list-jobs',
-    method: 'GET',
-    href: `${baseUrl}/jobs`,
-    input: 'none',
-    output: '[ { id, status, name?, createdAt, completedAt?, steps, rel: "job", href } ]'
-  },
-  {
-    rel: 'get-job',
-    method: 'GET',
-    href: `${baseUrl}/jobs/{jobId}`,
-    input: '{ jobId }',
-    output: '{ id, status, name?, createdAt, completedAt?, steps, error?, rel: "job", href }'
-  },
-  {
-    rel: 'filter-jobs',
-    method: 'GET',
-    href: `${baseUrl}/filter`,
-    input: '{ name?, status?, createdAt?, completedAt? } (all parameters are substring matches)',
-    output: '[ { id, status, name?, createdAt, completedAt?, steps, rel: "job", href } ]'
-  }
-]);
+    {
+      rel: 'run-job',
+      method: 'POST',
+      href: `${baseUrl}/run-job`,
+      input: '{ sharedStateURL?, steps: [ { tasks: [ { tag, input } ] } ] }',
+      output: '{ jobId, status | error }'
+    }
+  ]);
 });
 
 app.listen(port, () => {

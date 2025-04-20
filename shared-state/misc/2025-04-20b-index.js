@@ -22,12 +22,6 @@ app.get('/state/:id', (req, res) => {
   const { id } = req.params;
   const entry = stateStore[id];
   if (!entry) return res.status(404).json({ error: 'not found' });
-  
-  if (req.query.meta !== undefined) {
-    const { createdAt, lastModified } = entry;
-    return res.status(200).json({ id, createdAt, lastModified });
-  }
-
   const state = entry.content;
   log('read-state', { id, result: state });
   res.status(200).json(state);
@@ -181,6 +175,20 @@ app.get('/state', (req, res) => {
   res.json(list);
 
 });
+
+
+// GET /state/:id/meta — show metadata only
+app.get('/state/:id', (req, res, next) => {
+  if (req.query.meta !== undefined) {
+    const entry = stateStore[req.params.id];
+    if (!entry) return res.status(404).json({ error: 'not found' });
+    const { id, createdAt, lastModified } = entry;
+    return res.json({ id, createdAt, lastModified });
+  }
+  next(); // fall through to original /state/:id handler
+});
+//});
+
 
 // Service metadata and health
 app.get('/', (req, res) => {

@@ -1,99 +1,56 @@
-# Shared-State Service – Developer Guide
+# Shared-State Developer Guide
 
-This guide is for developers who want to **use** the Shared-State Service to manage shared data across jobs and composable services.
+This guide is for developers who want to **use** the shared-state service as part of their orchestration or service composition workflows.
+
+---
 
 ## Overview
 
-The Shared-State Service provides a lightweight, document-based storage mechanism for coordinating data between services. Each state document is:
-- Addressed by a unique ID
-- Patchable via JSON merge semantics
-- Used to store intermediate or final values during job execution
+The shared-state service provides ephemeral, JSON-based storage for coordinating distributed processes. Each document is addressable by an ID and supports flexible updates and observability.
 
 ---
 
-## Core Concepts
+## Common Operations
 
-- Each shared-state document is a JSON object
-- Paths use slash-style JSON Pointer notation (e.g., `/results/task1`)
-- Documents are modified using `PATCH` or `PUT`
-
----
-
-## API Endpoints
-
-### Create a State Document
-
+### 1. Create a Shared State Document
 ```bash
-curl -X POST http://localhost:4500/state \
-  -H "Content-Type: application/json" \
-  -d '{ "initial": "value" }'
+curl -X POST http://localhost:4500/state -d '{ "message": "hello" }' -H "Content-Type: application/json"
 ```
 
-**Returns:**
-```json
-{ "id": "<uuid>", "status": "created" }
-```
-
----
-
-### Read a State Document
-
+### 2. Read a Shared State Document
 ```bash
 curl http://localhost:4500/state/<id>
 ```
 
-Returns the entire state document.
-
----
-
-### Patch a State Document
-
-Used to update (merge) parts of a document.
-
+### 3. Update or Merge Fields
 ```bash
-curl -X PATCH http://localhost:4500/state/<id> \
-  -H "Content-Type: application/json" \
-  -d '{
-    "op": "merge",
-    "value": {
-      "results": {
-        "task1": "complete"
-      }
-    }
-  }'
+curl -X POST http://localhost:4500/state/<id> -d '{ "status": "ok" }' -H "Content-Type: application/json"
 ```
 
-### Replace a State Document
-
-Use PUT to overwrite the entire document:
+### 4. Apply Patch Operation
 ```bash
-curl -X PUT http://localhost:4500/state/<id> \
-  -H "Content-Type: application/json" \
-  -d '{ "new": "state" }'
+curl -X PATCH http://localhost:4500/state/<id> -d '{ "op": "add", "path": "/new/field", "value": 123 }' -H "Content-Type: application/json"
 ```
 
 ---
 
-## Best Practices
+## Metadata and Observability
 
-- Treat shared-state as **ephemeral** — jobs should clean up after use if needed.
-- Use nested paths to organize results by step/task (e.g., `/results/step1`)
-- Avoid excessive size or deeply nested structures
-- Only use PATCH for additive/merge operations — not deletion
+- Each document tracks:
+  - `createdAt` and `lastModified` timestamps
+- You can list all known state entries:
+```bash
+curl http://localhost:4500/state
+```
 
----
-
-## Example Workflow with Job-Control
-
-1. Create a shared-state document
-2. Insert shared inputs (or let the job-control merge inline `sharedState`)
-3. Use `$fromState` to pull values during job execution
-4. Use `storeResultAt` to write values back
+- You can retrieve metadata for a single doc:
+```bash
+curl http://localhost:4500/state/<id>?meta
+```
 
 ---
 
 ## Notes
 
-- The service currently stores data in-memory
-- Future versions may support persistent backends like Redis or MongoDB
-- Error responses include appropriate status codes and messages
+- State is stored in-memory and will not persist across restarts.
+- Clients **cannot see** metadata when retrieving the document contents via `/state/:id`.

@@ -289,14 +289,8 @@ app.get('/jobs/:jobId', (req, res) => {
   if (!job) {
     return res.status(404).json({ error: 'Job not found' });
   }
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  res.json({
-    ...job,
-    rel: 'jobs',
-    href: `${baseUrl}/jobs`
-  });
+  res.json(job);
 });
-//});
 
 
 app.get('/forms', (req, res) => {

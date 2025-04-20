@@ -15,20 +15,12 @@ app.use(express.json());
 app.get('/ping', (req, res) => res.status(200).json({ status: 'ok' }));
 
 // In-memory state store
-const stateStore = {}; // id => { id, content, createdAt, lastModified }
+const stateStore = {};
 
 // GET /state/:id — read shared state
 app.get('/state/:id', (req, res) => {
   const { id } = req.params;
-  const entry = stateStore[id];
-  if (!entry) return res.status(404).json({ error: 'not found' });
-  
-  if (req.query.meta !== undefined) {
-    const { createdAt, lastModified } = entry;
-    return res.status(200).json({ id, createdAt, lastModified });
-  }
-
-  const state = entry.content;
+  const state = stateStore[id] || {};
   log('read-state', { id, result: state });
   res.status(200).json(state);
 });
@@ -38,12 +30,14 @@ app.post('/state/:id', (req, res) => {
   const { id } = req.params;
   const update = req.body;
 
-  const now = new Date().toISOString();
   if (!stateStore[id]) {
-    stateStore[id] = { id, content: {}, createdAt: now, lastModified: now };
+    stateStore[id] = {};
   }
-  Object.assign(stateStore[id].content, update);
-  stateStore[id].lastModified = now;
+
+  stateStore[id] = {
+    ...stateStore[id],
+    ...update
+  };
 
   log('update-state', { id, update });
   res.status(200).json({ status: 'updated', state: stateStore[id] });
@@ -58,13 +52,7 @@ app.post('/state', (req, res) => {
     return res.status(409).json({ error: `State ID '${stateId}' already exists.` });
   }
 
-  const now = new Date().toISOString();
-  stateStore[stateId] = {
-    id: stateId,
-    content: initialState,
-    createdAt: now,
-    lastModified: now
-  };
+  stateStore[stateId] = initialState;
 
   log('create-state', { stateId, initialState });
   res.status(201).json({ stateURL: `http://localhost:${port}/state/${stateId}` });
@@ -127,16 +115,14 @@ app.patch('/state/:id', (req, res) => {
   const { op, path, value } = req.body;
 
   if (!stateStore[id]) {
-    const now = new Date().toISOString();
-    stateStore[id] = { id, content: {}, createdAt: now, lastModified: now };
+    stateStore[id] = {};
   }
 
   if (op === 'merge') {
     if (typeof value !== 'object' || value === null) {
       return res.status(400).json({ error: 'Invalid merge value' });
     }
-    Object.assign(stateStore[id].content, value);
-    stateStore[id].lastModified = new Date().toISOString();
+    stateStore[id] = { ...stateStore[id], ...value };
     log('patch-merge', { id, value });
     return res.status(200).json({ status: 'merged', state: stateStore[id] });
   }
@@ -150,7 +136,7 @@ app.patch('/state/:id', (req, res) => {
   }
 
   const keys = path.split('/').filter(Boolean);
-  let target = stateStore[id].content;
+  let target = stateStore[id];
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
@@ -164,31 +150,6 @@ app.patch('/state/:id', (req, res) => {
 
   log('patch-state', { id, op, path, value });
   return res.status(200).json({ status: 'patched', state: stateStore[id] });
-});
-
-
-
-// GET /state — list all shared state documents with metadata
-app.get('/state', (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get('host')}`;
-  const list = Object.values(stateStore).map(({ id, createdAt, lastModified }) => ({
-    id,
-    createdAt,
-    lastModified,
-    rel: 'item',
-    href: `${baseUrl}/state/${id}`
-  }));
-  res.json(list);
-
-});
-
-// Service metadata and health
-app.get('/', (req, res) => {
-  res.json({ name: 'shared-state', version: '1.0.0' });
-});
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 
