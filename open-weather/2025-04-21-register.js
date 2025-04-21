@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { log } = require('./logger');
 
 async function registerWithDiscovery(PORT, design) {
   try {
@@ -15,9 +14,9 @@ async function registerWithDiscovery(PORT, design) {
     };
 
     const response = await axios.post(registryURL, serviceInfo);
-    log('register', { registryID: response.data.registryID });
+    console.log('[register] Registered service:', response.data);
   } catch (err) {
-    log('register-failed', { error: err.message }, 'error');
+    console.error('[register] Registration failed:', err.message);
   }
 }
 

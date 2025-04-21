@@ -73,8 +73,6 @@ app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
  
-  log("job-ma",{job:job},"info");
-  
   // TODO: merge job.sharedState into sharedStateURL via PATCH when available
   if (job.sharedState && job.sharedStateURL) {
     log('shared-state-inline-detected', { jobId }, 'debug');
@@ -144,7 +142,8 @@ app.post('/run-job', async (req, res) => {
         const resolvedInput = await resolveInput(task.input, stateURL);
 
         const payload = {
-          ...resolvedInput
+          ...resolvedInput,
+          requestId
         };
         
         revertStack.push({ serviceURL: service.serviceURL, requestId });

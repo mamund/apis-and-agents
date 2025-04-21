@@ -1,6 +1,7 @@
+
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+//require('dotenv').config();
 const axios = require('axios');
-const { log } = require('./logger');
 
 let lastCall = null;
 
@@ -17,21 +18,16 @@ async function getWeather(args) {
     conditions: data.weather[0].main
   };
 
-  log('getWeather-success', { city, units, result });
   lastCall = { args, result };
   return result;
 }
 
 function repeatLast() {
-  if (!lastCall) {
-    log('repeat-failed', { reason: 'No previous call' }, 'warn');
-    throw new Error('No previous call to repeat');
-  }
+  if (!lastCall) throw new Error('No previous call to repeat');
   return lastCall.result;
 }
 
 function revert() {
-  log('revert-noop');
   return { message: 'Nothing to revert' };
 }
 
