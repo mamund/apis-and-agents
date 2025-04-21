@@ -1,0 +1,45 @@
+{
+  "title": "OpenWeather Wrapper",
+  "version": "1.0.0",
+  "description": "Composable wrapper for querying current weather from the OpenWeather API",
+  "serviceInfo": {
+    "serviceName": "openweather",
+    "description": "Provides weather data via the OpenWeather API",
+    "tags": ["weather", "proxy", "external"],
+    "mediaTypes": ["application/json"]
+  },
+  "resourceType": "weather",
+  "resourceSchema": {
+    "weather": {
+      "temperature": { "type": "number" },
+      "conditions": { "type": "string" }
+    }
+  },
+  "authorization": {
+    "roles": []
+  },
+  "commands": {
+    "getWeather": {
+      "description": "Gets current weather by city",
+      "transitionType": {
+        "safe": true,
+        "idempotent": true,
+        "reversible": false
+      },
+      "inputs": {
+        "required": ["city"],
+        "optional": ["units"],
+        "defaults": { "units": "metric" }
+      },
+      "output": {
+        "type": "weather",
+        "returns": "object"
+      },
+      "errors": [],
+      "authorization": {
+        "roles": []
+      }
+    }
+  }
+}
+

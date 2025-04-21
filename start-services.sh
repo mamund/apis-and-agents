@@ -36,4 +36,7 @@ node todo-service/index.js > logs/todo-service.log 2>&1 &
 echo "Starting composable-engine..."
 node engine/index.js > logs/engine.log 2>&1 &
 
+echo "Starting open-weather..."
+node open-weather/index.js > logs/engine.log 2>&1 &
+
 echo "All services launched. Logs available in ./logs/"

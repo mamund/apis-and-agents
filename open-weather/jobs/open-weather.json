@@ -1,0 +1,24 @@
+{
+  "name": "get-current-weather",
+  "steps": [
+    {
+      "name": "fetch-weather",
+      "tasks": [
+        {
+          "tag": "getWeather",
+          "serviceName": "openweather",
+          "input": {
+            "city": "London",
+            "units": "metric"
+          },
+          "storeResultAt": [
+            {
+              "targetPath": "/weather/current"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
