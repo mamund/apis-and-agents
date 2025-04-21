@@ -1,19 +1,23 @@
 {
   "name": "get-current-weather",
+  "description" : "A short script to exercise the remote Weather API",  
   "steps": [
     {
       "name": "fetch-weather",
       "tasks": [
         {
-          "tag": "getWeather",
+          "tag": "weather",
           "serviceName": "openweather",
           "input": {
-            "city": "London",
-            "units": "metric"
+            "name" : "getWeather", 
+            "args" : {
+              "city": {"$fromState": "/input/weather/city", "default":"New York"},
+              "units": {"$fromState": "/input/weather/units","default":"imperial"}
+            }
           },
           "storeResultAt": [
             {
-              "targetPath": "/weather/current"
+              "targetPath": "/output/weather"
             }
           ]
         }

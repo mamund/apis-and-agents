@@ -1,0 +1,10 @@
+{ 
+  "title" : "open-weather api",
+  "id" : "q1w2e3r4",
+  "input" : {
+    "weather" : {
+      "city": "Tokyo",
+      "units": "metric"
+    }
+  }
+} 

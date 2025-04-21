@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const { log } = require('./logger');
 const { getWeather, repeatLast, revert } = require('./weather-adapter');
 const { registerWithDiscovery } = require('./register');
 

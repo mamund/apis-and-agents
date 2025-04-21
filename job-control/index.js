@@ -29,6 +29,7 @@ const resolveInput = async (input, stateURL) => {
   try {
     const response = await axios.get(stateURL);
     state = response.data;
+        
   } catch (err) {
     log('shared-state-load-failed', { error: err.message }, 'warn');
   }
@@ -71,7 +72,9 @@ const resolveInput = async (input, stateURL) => {
 app.post('/run-job', async (req, res) => {
   const job = req.body;
   const jobId = uuidv4();
-
+ 
+  log("job-ma",{job:job},"info");
+  
   // TODO: merge job.sharedState into sharedStateURL via PATCH when available
   if (job.sharedState && job.sharedStateURL) {
     log('shared-state-inline-detected', { jobId }, 'debug');
@@ -93,13 +96,13 @@ app.post('/run-job', async (req, res) => {
   log('job-start', { jobId });
 
   const startTime = new Date().toISOString();
-jobStore.set(jobId, {
-  id: jobId,
-  status: 'running',
-  createdAt: startTime,
-  name: job.name || null,
-  steps: job.steps?.length || 0
-});
+    jobStore.set(jobId, {
+    id: jobId,
+    status: 'running',
+    createdAt: startTime,
+    name: job.name || null,
+    steps: job.steps?.length || 0
+  });
 
   for (const step of job.steps) {
     const activeTasks = step.tasks.filter(t => t.enabled !== false);
@@ -126,7 +129,6 @@ jobStore.set(jobId, {
         });
 
         if (!response.data.length) throw new Error(`No service found for tag ${task.tag}`);
-
         const service = response.data[0];
         const form = await axios.get(`${service.serviceURL}/forms`);
 
@@ -142,10 +144,9 @@ jobStore.set(jobId, {
         const resolvedInput = await resolveInput(task.input, stateURL);
 
         const payload = {
-          ...resolvedInput,
-          requestId
+          ...resolvedInput
         };
-
+        
         revertStack.push({ serviceURL: service.serviceURL, requestId });
 
         const result = await axios.post(targetForm.href, payload);
