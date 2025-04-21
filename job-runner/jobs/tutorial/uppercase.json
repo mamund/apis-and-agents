@@ -1,0 +1,20 @@
+{
+  "name": "uppercase-demo",
+  "initialState" : {},
+  "steps": [
+    {
+      "name": "capitalize",
+      "tasks": [
+        {
+          "tag": "uppercase",
+          "input": {
+            "input": "hello world"
+          },
+          "storeResultAt": [
+            { "targetPath": "/results/message" }
+          ]
+        }
+      ]
+    }
+  ]
+}

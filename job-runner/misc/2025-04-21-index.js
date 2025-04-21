@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// job-runner CLI - Phase 1 (patched with initialState merge)
+// job-runner CLI - Phase 1
 
 import fs from 'fs';
 import path from 'path';
@@ -59,9 +59,9 @@ async function main() {
   logVerbose(verbose, 'Loaded job file:', job);
 
   let stateId = null;
-  let sharedStateWasCreated = false;
 
   if (stateFile) {
+    // Step 2: Load shared state JSON
     const state = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
     stateId = state.id || uuidv4();
     state.id = stateId;
@@ -70,12 +70,13 @@ async function main() {
     job.sharedStateURL = sharedStateURL;
 
     logVerbose(verbose, 'Prepared shared state:', state);
-    sharedStateWasCreated = true;
     logVerbose(verbose, 'sharedStateURL injected into job:', sharedStateURL);
 
     if (!dryRun) {
       try {
+        // Check if state already exists
         await axios.get(`${stateURL}/state/${stateId}`);
+
         if (overwrite) {
           await axios.post(`${stateURL}/state/${stateId}`, state);
           logVerbose(verbose, 'Existing shared state overwritten via POST');
@@ -91,34 +92,12 @@ async function main() {
           throw err;
         }
       }
-
-      if (job.initialState) {
-        const patch = { op: 'merge', value: job.initialState };
-        await axios.patch(`${stateURL}/state/${stateId}`, patch);
-        logVerbose(verbose, 'Initial state merged into shared state via PATCH', patch);
-      }
     } else {
       console.log('[dry-run] Would create or overwrite shared state at', `${stateURL}/state/${stateId}`);
-      if (job.initialState) {
-        console.log('[dry-run] Would PATCH merged initialState to', `${stateURL}/state/${stateId}`);
-      }
-    }
-  } else if (job.initialState) {
-    const state = { ...job.initialState, id: uuidv4() };
-    stateId = state.id;
-    job.sharedStateURL = `${stateURL}/state/${stateId}`;
-    sharedStateWasCreated = true;
-
-    logVerbose(verbose, 'Initial state found in job file. Creating shared state:', state);
-
-    if (!dryRun) {
-      await axios.post(`${stateURL}/state`, state);
-      logVerbose(verbose, 'Initial state POSTed to server');
-    } else {
-      console.log('[dry-run] Would create shared state from initialState');
     }
   }
 
+  // Step 3: POST job to /run-job
   if (!dryRun) {
     const result = await axios.post(`${jobURL}/run-job`, job);
     logVerbose(verbose, 'Job submitted. Server response:', result.data);
@@ -126,6 +105,7 @@ async function main() {
     console.log('[dry-run] Would POST job-control to', `${jobURL}/run-job`);
   }
 
+  // Step 4: Emit shared state (if requested)
   if (emitTarget && stateId && !dryRun) {
     const getResp = await axios.get(`${stateURL}/state/${stateId}`);
     const output = JSON.stringify(getResp.data, null, 2);
@@ -138,6 +118,7 @@ async function main() {
     }
   }
 
+  // Step 5: Auto-cleanup unless --keep is used
   if (!keep && stateId && !dryRun) {
     await axios.delete(`${stateURL}/state/${stateId}`);
     logVerbose(verbose, 'Shared state deleted:', `${stateURL}/state/${stateId}`);
@@ -148,3 +129,4 @@ main().catch((err) => {
   console.error('Error running job:', err.message);
   process.exit(1);
 });
+
