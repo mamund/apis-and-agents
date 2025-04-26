@@ -1,0 +1,190 @@
+[
+  {
+    "rel": "create",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Creates a new Person record",
+    "input": {
+      "name": "create",
+      "args": {
+        "email": "string (required)",
+        "id": "string (optional)",
+        "givenName": "string (optional)",
+        "familyName": "string (optional)",
+        "telephone": "string (optional)",
+        "status": "string (optional)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "object",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "list",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Returns a list of Person records",
+    "input": {
+      "name": "list",
+      "args": {}
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "array",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "filter",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Returns a filtered list of Person records",
+    "input": {
+      "name": "filter",
+      "args": {
+        "givenName": "string (optional)",
+        "familyName": "string (optional)",
+        "email": "string (optional)",
+        "telephone": "string (optional)",
+        "status": "string (optional)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "array",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "read",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Returns a single Person record",
+    "input": {
+      "name": "read",
+      "args": {
+        "id": "string (required)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "object",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "update",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Updates a single Person record",
+    "input": {
+      "name": "update",
+      "args": {
+        "id": "string (required)",
+        "givenName": "string (optional)",
+        "familyName": "string (optional)",
+        "email": "string (optional)",
+        "telephone": "string (optional)",
+        "status": "string (optional)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "object",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "status",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Updates the status of a single Person record",
+    "input": {
+      "name": "status",
+      "args": {
+        "id": "string (required)",
+        "status": "string (required)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "object",
+          "wrappedIn": "result",
+          "schema": "person"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  },
+  {
+    "rel": "delete",
+    "method": "POST",
+    "href": "/execute",
+    "description": "Deletes a single Person record",
+    "input": {
+      "name": "delete",
+      "args": {
+        "id": "string (required)"
+      }
+    },
+    "output": {
+      "response": {
+        "success": {
+          "type": "none",
+          "wrappedIn": "result",
+          "schema": "null"
+        },
+        "error": {
+          "type": "object",
+          "wrappedIn": "error"
+        }
+      }
+    }
+  }
+]

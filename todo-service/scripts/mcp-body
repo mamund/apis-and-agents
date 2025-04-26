@@ -1,0 +1,11 @@
+POST http://localhost:4001/execute
+Content-Type: application/json"
+  
+  {
+    "command": "create",
+    "resource": "todo",
+    "payload": {
+      "title": "Buy milk",
+      "done": false
+    }
+  } 
